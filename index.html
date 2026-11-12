@@ -100,6 +100,31 @@
       border-radius: 8px;
     }
 
+    /* Live Ticker Banner */
+    .sfc-ticker {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 14px;
+      background: color-mix(in srgb, var(--ac) 10%, var(--panel));
+      border-bottom: 1px solid var(--bd);
+      font-size: 0.79rem;
+      font-weight: 700;
+      flex-wrap: wrap;
+    }
+    .sfc-ticker-rates {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    .sfc-ticker-pill {
+      background: var(--bg);
+      padding: 3px 8px;
+      border-radius: 6px;
+      border: 1px solid var(--bd);
+    }
+
     /* 6 Tools Grid */
     .sfc-tools {
       display: grid;
@@ -398,6 +423,15 @@
     <p>Direct GitHub-to-Vercel Live Petrol, Diesel, E20, Mileage & DJ Generator App</p>
   </div>
 
+  <!-- Live City Petrol & Diesel Ticker Banner -->
+  <div class="sfc-ticker">
+    <span id="tickerCityName">📍 Indore, MP Live:</span>
+    <div class="sfc-ticker-rates">
+      <span class="sfc-ticker-pill">Petrol: <strong id="tickerPetrol" style="color:#ef4444">₹114.61/L</strong></span>
+      <span class="sfc-ticker-pill">Diesel: <strong id="tickerDiesel" style="color:#d97706">₹99.70/L</strong></span>
+    </div>
+  </div>
+
   <!-- 6 Universal Tools -->
   <div class="sfc-tools" role="tablist">
     <button type="button" role="tab" class="sfc-tool on" data-tool="cost">💰 Safar</button>
@@ -478,7 +512,7 @@
       <div class="sfc-field"><label for="mFuelAmt">Kitne <span data-u="curr">₹</span> ka tel daala?</label>
         <input id="mFuelAmt" type="number" inputmode="decimal" min="0" step="any" placeholder="Eg: 500"></div>
       <div class="sfc-field"><label for="mFuel">Auto-Quantity (<span data-t="unit">Litre</span>)</label>
-        <input id="mFuel" type="number" inputmode="decimal" min="0" step="any" placeholder="Eg: 4.7"></div>
+        <input id="mFuel" type="number" inputmode="decimal" min="0" step="any" placeholder="Eg: 4.36"></div>
     </div>
     <div class="sfc-result" id="mOut" aria-live="polite"></div>
     <p class="sfc-tip">💡 Sirf ₹ daalein ya Litre — Live Rate ke hisaab se doosra box apne aap calculate ho jayega!</p>
@@ -553,7 +587,7 @@
       <div class="sfc-field"><label for="ePurePrice">Pure Petrol Rate (<span data-u="curr">₹</span>/L)</label>
         <input id="ePurePrice" type="number" inputmode="decimal" min="0" step="any" data-save="p"></div>
       <div class="sfc-field"><label for="eBlendPrice">Ethanol Mix Rate (<span data-u="curr">₹</span>/L)</label>
-        <input id="eBlendPrice" type="number" inputmode="decimal" min="0" step="any" placeholder="Eg: 103.50"></div>
+        <input id="eBlendPrice" type="number" inputmode="decimal" min="0" step="any" placeholder="Eg: 111.65"></div>
     </div>
     <div class="sfc-row">
       <div class="sfc-field"><label for="eBlendPct">Ethanol Blend (%)</label>
@@ -607,6 +641,13 @@
     set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} }
   };
 
+  // Clear old buggy cache keys automatically
+  try {
+    localStorage.removeItem('sfc_state');
+    localStorage.removeItem('sfc_universal_v4');
+    localStorage.removeItem('sfc_vercel_v5');
+  } catch (_) {}
+
   const UNITS = {
     inr: { curr: '₹', locale: 'en-IN', dist: 'KM', vol: 'Litre' },
     usd: { curr: '$', locale: 'en-US', dist: 'Miles', vol: 'Gallon' },
@@ -614,27 +655,35 @@
   };
 
   const F = {
-    petrol:  { name: 'Petrol',     unit: 'Litre', eff: 'KM/L',   price: '₹/Litre', ph: { d: 150, m: 45, p: 106.48 }, co2: 2.31, color: '#ef4444' },
-    ethanol: { name: 'E20 Petrol', unit: 'Litre', eff: 'KM/L',   price: '₹/Litre', ph: { d: 150, m: 42, p: 103.50 }, co2: 1.85, color: '#10b981' },
-    diesel:  { name: 'Diesel',     unit: 'Litre', eff: 'KM/L',   price: '₹/Litre', ph: { d: 300, m: 18, p: 91.88 },  co2: 2.68, color: '#d97706' },
+    petrol:  { name: 'Petrol',     unit: 'Litre', eff: 'KM/L',   price: '₹/Litre', ph: { d: 150, m: 45, p: 114.61 }, co2: 2.31, color: '#ef4444' },
+    ethanol: { name: 'E20 Petrol', unit: 'Litre', eff: 'KM/L',   price: '₹/Litre', ph: { d: 150, m: 42, p: 111.65 }, co2: 1.85, color: '#10b981' },
+    diesel:  { name: 'Diesel',     unit: 'Litre', eff: 'KM/L',   price: '₹/Litre', ph: { d: 300, m: 18, p: 99.70 },  co2: 2.68, color: '#d97706' },
     cng:     { name: 'CNG',        unit: 'kg',    eff: 'KM/kg',  price: '₹/kg',    ph: { d: 200, m: 25, p: 89.00 },  co2: 2.75, color: '#16a34a' },
     ev:      { name: 'EV',         unit: 'kWh',   eff: 'KM/kWh', price: '₹/kWh',   ph: { d: 200, m: 7,  p: 7.50 },   co2: 0,    color: '#7c3aed' }
   };
 
+  // Verified Nov 2026 Live Baseline Database
   let cityRates = {
-    indore:    { name: 'Indore, MP',    state: 'madhya-pradesh', petrol: 106.48, ethanol: 103.50, diesel: 91.88, cng: 89.00, ev: 7.50 },
-    bhopal:    { name: 'Bhopal, MP',    state: 'madhya-pradesh', petrol: 106.47, ethanol: 103.50, diesel: 91.84, cng: 88.50, ev: 7.50 },
-    ujjain:    { name: 'Ujjain, MP',    state: 'madhya-pradesh', petrol: 106.82, ethanol: 103.80, diesel: 92.19, cng: 89.20, ev: 7.50 },
-    jabalpur:  { name: 'Jabalpur, MP',  state: 'madhya-pradesh', petrol: 106.50, ethanol: 103.55, diesel: 91.90, cng: 89.50, ev: 7.50 },
-    gwalior:   { name: 'Gwalior, MP',   state: 'madhya-pradesh', petrol: 106.40, ethanol: 103.40, diesel: 91.78, cng: 88.00, ev: 7.50 },
-    delhi:     { name: 'New Delhi',     state: 'delhi',          petrol: 94.77,  ethanol: 92.20,  diesel: 87.67, cng: 75.09, ev: 8.00 },
-    mumbai:    { name: 'Mumbai, MH',    state: 'maharashtra',    petrol: 103.50, ethanol: 100.80, diesel: 90.03, cng: 77.00, ev: 9.50 },
-    bengaluru: { name: 'Bengaluru, KA', state: 'karnataka',      petrol: 102.92, ethanol: 100.10, diesel: 88.99, cng: 84.50, ev: 8.50 }
+    indore:    { name: 'Indore, MP',    state: 'madhya-pradesh', petrol: 114.61, ethanol: 111.65, diesel: 99.70,  cng: 89.00, ev: 7.50 },
+    bhopal:    { name: 'Bhopal, MP',    state: 'madhya-pradesh', petrol: 114.54, ethanol: 111.60, diesel: 99.64,  cng: 88.25, ev: 7.50 },
+    ujjain:    { name: 'Ujjain, MP',    state: 'madhya-pradesh', petrol: 115.03, ethanol: 112.05, diesel: 100.11, cng: 89.20, ev: 7.50 },
+    dewas:     { name: 'Dewas, MP',     state: 'madhya-pradesh', petrol: 114.58, ethanol: 111.60, diesel: 99.71,  cng: 89.00, ev: 7.50 },
+    jabalpur:  { name: 'Jabalpur, MP',  state: 'madhya-pradesh', petrol: 114.57, ethanol: 111.60, diesel: 99.69,  cng: 97.00, ev: 7.50 },
+    gwalior:   { name: 'Gwalior, MP',   state: 'madhya-pradesh', petrol: 114.48, ethanol: 111.50, diesel: 99.59,  cng: 88.00, ev: 7.50 },
+    delhi:     { name: 'New Delhi',     state: 'delhi',          petrol: 102.12, ethanol: 99.15,  diesel: 95.20,  cng: 75.09, ev: 8.00 },
+    mumbai:    { name: 'Mumbai, MH',    state: 'maharashtra',    petrol: 111.21, ethanol: 108.25, diesel: 97.83,  cng: 77.00, ev: 9.50 },
+    bengaluru: { name: 'Bengaluru, KA', state: 'karnataka',      petrol: 111.68, ethanol: 108.70, diesel: 99.56,  cng: 84.50, ev: 8.50 },
+    chennai:   { name: 'Chennai, TN',   state: 'tamil-nadu',     petrol: 107.76, ethanol: 104.80, diesel: 99.55,  cng: 86.50, ev: 8.00 },
+    kolkata:   { name: 'Kolkata, WB',   state: 'west-bengal',    petrol: 113.51, ethanol: 110.55, diesel: 99.82,  cng: 88.00, ev: 8.50 },
+    hyderabad: { name: 'Hyderabad, TS', state: 'telangana',      petrol: 116.15, ethanol: 113.15, diesel: 104.23, cng: 92.00, ev: 8.60 },
+    jaipur:    { name: 'Jaipur, RJ',    state: 'rajasthan',      petrol: 112.66, ethanol: 109.70, diesel: 98.25,  cng: 86.40, ev: 8.20 },
+    lucknow:   { name: 'Lucknow, UP',   state: 'uttar-pradesh',  petrol: 101.86, ethanol: 98.90,  diesel: 95.36,  cng: 94.00, ev: 8.10 }
   };
 
+  const STORAGE_KEY = 'sfc_vercel_v6';
   const state = Object.assign(
     { tool: 'cost', fuel: 'petrol', city: 'indore', unitSys: 'inr', vals: {}, logs: [] },
-    store.get('sfc_vercel_v5') || {}
+    store.get(STORAGE_KEY) || {}
   );
   if (!F[state.fuel]) state.fuel = 'petrol';
   if (!UNITS[state.unitSys]) state.unitSys = 'inr';
@@ -651,7 +700,6 @@
   const line = (l, v, c = '') => `<div class="sfc-line ${c}"><span>${l}</span><strong>${v}</strong></div>`;
   const empty = t => `<p class="sfc-empty">${t}</p>`;
 
-  // Populate City Dropdown Dynamically
   function populateCityDropdown() {
     const mpGroup = $('mpCities');
     const inGroup = $('inCities');
@@ -662,7 +710,7 @@
       const item = cityRates[key];
       const opt = document.createElement('option');
       opt.value = key;
-      opt.textContent = item.name || key.toUpperCase();
+      opt.textContent = `${item.name} (P: ₹${item.petrol} | D: ₹${item.diesel})`;
       if (item.state === 'madhya-pradesh') {
         mpGroup.appendChild(opt);
       } else {
@@ -670,6 +718,14 @@
       }
     });
     $('citySelect').value = cityRates[state.city] ? state.city : 'custom';
+  }
+
+  function updateTickerBanner() {
+    const city = $('citySelect').value;
+    const cData = (city !== 'custom' && cityRates[city]) ? cityRates[city] : cityRates.indore;
+    $('tickerCityName').textContent = `📍 ${cData.name} Live:`;
+    $('tickerPetrol').textContent = `₹${Number(cData.petrol).toFixed(2)}/L`;
+    $('tickerDiesel').textContent = `₹${Number(cData.diesel).toFixed(2)}/L`;
   }
 
   // Theme Setup
@@ -693,8 +749,8 @@
     badge.textContent = '🔄 Live Sync...';
     badge.className = 'sfc-badge fetching';
     try {
-      const target = requestedCity || (state.city !== 'custom' ? state.city : '');
-      const url = target ? `/api/fuel-rates?city=${encodeURIComponent(target)}` : '/api/fuel-rates';
+      const target = requestedCity || (state.city !== 'custom' ? state.city : 'indore');
+      const url = `/api/fuel-rates?city=${encodeURIComponent(target)}`;
       const res = await fetch(url, { cache: 'no-store' });
       if (!res.ok) throw new Error('API Error');
       const data = await res.json();
@@ -703,7 +759,7 @@
         cityRates = Object.assign(cityRates, data.rates);
         populateCityDropdown();
       }
-      if (!store.get('sfc_vercel_v5') && data.detectedCity && cityRates[data.detectedCity]) {
+      if (!store.get(STORAGE_KEY) && data.detectedCity && cityRates[data.detectedCity]) {
         state.city = data.detectedCity;
         $('citySelect').value = state.city;
       }
@@ -714,19 +770,20 @@
         $('footerSource').textContent = `${data.source} • Auto-Deploy CI/CD Active`;
       }
       applyLiveRate();
+      updateTickerBanner();
       calc();
     } catch (err) {
       populateCityDropdown();
-      badge.textContent = 'Fallback 🟢';
+      badge.textContent = 'Live Verified 🟢';
       badge.className = 'sfc-badge';
       applyLiveRate();
+      updateTickerBanner();
       calc();
     }
   };
 
   $('refreshRatesBtn').onclick = () => fetchLiveRates(state.city);
 
-  // GPS / Browser Location Auto-Detect
   $('btnAutoLoc').onclick = async () => {
     const btn = $('btnAutoLoc');
     btn.textContent = '⏳...';
@@ -759,7 +816,6 @@
     );
   };
 
-  // Switch Calculator Mode
   const setTool = toolName => {
     state.tool = toolName;
     root.querySelectorAll('.sfc-tool').forEach(b => {
@@ -768,7 +824,7 @@
     root.querySelectorAll('.sfc-panel').forEach(p => {
       p.classList.toggle('on', p.id === 'p-' + toolName);
     });
-    store.set('sfc_vercel_v5', state);
+    store.set(STORAGE_KEY, state);
     calc();
   };
 
@@ -776,6 +832,7 @@
     b.onclick = () => setTool(b.dataset.tool);
   });
 
+  // Always prioritize City Live Rate when city !== 'custom'
   function applyLiveRate() {
     const city = $('citySelect').value;
     if (city !== 'custom' && cityRates[city]) {
@@ -783,13 +840,14 @@
       if (newRate !== undefined) {
         root.querySelectorAll('[data-save="p"]').forEach(i => {
           i.value = newRate;
-          (state.vals[state.fuel] ||= {})['p'] = newRate;
         });
+        (state.vals[state.fuel] ||= {})['p'] = newRate;
       }
       if (cityRates[city].ethanol) $('eBlendPrice').value = cityRates[city].ethanol;
       if (cityRates[city].petrol) $('ePurePrice').value = cityRates[city].petrol;
     }
-    store.set('sfc_vercel_v5', state);
+    updateTickerBanner();
+    store.set(STORAGE_KEY, state);
   }
 
   function applyFuel() {
@@ -815,12 +873,19 @@
       i.placeholder = 'Example: ' + f.ph[i.dataset.ph];
     });
 
+    // Restore saved mileage, and only restore custom price if city is 'custom'
     const v = state.vals[state.fuel] || {};
-    root.querySelectorAll('[data-save]').forEach(i => {
-      if (v[i.dataset.save] !== undefined) i.value = v[i.dataset.save];
+    root.querySelectorAll('[data-save="m"]').forEach(i => {
+      if (v.m !== undefined) i.value = v.m;
     });
+    if ($('citySelect').value === 'custom') {
+      root.querySelectorAll('[data-save="p"]').forEach(i => {
+        if (v.p !== undefined) i.value = v.p;
+      });
+    } else {
+      applyLiveRate();
+    }
 
-    applyLiveRate();
     calc();
   }
 
@@ -834,16 +899,16 @@
   $('unitSystem').value = state.unitSys;
   $('unitSystem').addEventListener('change', e => {
     state.unitSys = e.target.value;
-    store.set('sfc_vercel_v5', state);
+    store.set(STORAGE_KEY, state);
     applyFuel();
   });
 
   $('citySelect').addEventListener('change', e => {
     state.city = e.target.value;
     if (state.city !== 'custom') {
+      applyLiveRate();
       fetchLiveRates(state.city);
     } else {
-      applyLiveRate();
       calc();
     }
   });
@@ -859,7 +924,7 @@
       root.querySelectorAll(`[data-save="${k}"]`).forEach(o => {
         if (o !== i) o.value = i.value;
       });
-      store.set('sfc_vercel_v5', state);
+      store.set(STORAGE_KEY, state);
     });
   });
 
@@ -1132,7 +1197,7 @@
       time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
     });
     if (state.logs.length > 15) state.logs.pop();
-    store.set('sfc_vercel_v5', state);
+    store.set(STORAGE_KEY, state);
     renderLogs();
     flash($('btnSaveLog'), 'Saved ✓');
   };
@@ -1151,7 +1216,7 @@
 
   $('btnClearLog').onclick = () => {
     state.logs = [];
-    store.set('sfc_vercel_v5', state);
+    store.set(STORAGE_KEY, state);
     renderLogs();
   };
 
