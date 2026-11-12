@@ -343,6 +343,18 @@
       font-size: 0.78rem;
       color: var(--mut);
     }
+    .sfc-inline-btn {
+      margin-top: 8px;
+      width: 100%;
+      padding: 7px 10px;
+      border-radius: 8px;
+      border: 1px dashed var(--ac);
+      background: color-mix(in srgb, var(--ac) 12%, transparent);
+      color: var(--tx);
+      font-size: 0.8rem;
+      font-weight: 700;
+      cursor: pointer;
+    }
 
     /* Action Bar */
     .sfc-global-actions { padding: 10px 18px 14px; }
@@ -494,7 +506,7 @@
     <div class="sfc-result" id="cOut" aria-live="polite"></div>
   </section>
 
-  <!-- TOOL 2: MILEAGE CHECK -->
+  <!-- TOOL 2: MILEAGE CHECK (UPDATED WITH MILEAGE INPUT & 3-WAY SOLVER) -->
   <section class="sfc-panel" id="p-mileage">
     <div class="sfc-row">
       <div class="sfc-field"><label for="mStart">Odometer Shuru (<span data-u="dist">KM</span>)</label>
@@ -503,19 +515,24 @@
         <input id="mEnd" type="number" inputmode="decimal" min="0" step="any" placeholder="Optional"></div>
     </div>
     <div class="sfc-field"><label for="mDist">Ya Seedha Chali Hui Distance (<span data-u="dist">KM</span>)</label>
-      <input id="mDist" type="number" inputmode="decimal" min="0" step="any" placeholder="Example: 200"></div>
+      <input id="mDist" type="number" inputmode="decimal" min="0" step="any" placeholder="Example: 200 (Optional agar Mileage daala hai)"></div>
 
-    <div class="sfc-field"><label for="mPrice">Live Rate (<span data-t="price">₹/Litre</span>)</label>
-      <input id="mPrice" type="number" inputmode="decimal" min="0" step="any" data-ph="p" data-save="p"></div>
+    <!-- NAYA ROW: GAADI KA MILEAGE + LIVE RATE -->
+    <div class="sfc-row">
+      <div class="sfc-field"><label for="mMil">Gaadi ka Mileage (<span data-t="eff">KM/L</span>)</label>
+        <input id="mMil" type="number" inputmode="decimal" min="0" step="any" data-ph="m" data-save="m"></div>
+      <div class="sfc-field"><label for="mPrice">Live Rate (<span data-t="price">₹/Litre</span>)</label>
+        <input id="mPrice" type="number" inputmode="decimal" min="0" step="any" data-ph="p" data-save="p"></div>
+    </div>
 
     <div class="sfc-row">
       <div class="sfc-field"><label for="mFuelAmt">Kitne <span data-u="curr">₹</span> ka tel daala?</label>
-        <input id="mFuelAmt" type="number" inputmode="decimal" min="0" step="any" placeholder="Eg: 500"></div>
+        <input id="mFuelAmt" type="number" inputmode="decimal" min="0" step="any" placeholder="Eg: 100"></div>
       <div class="sfc-field"><label for="mFuel">Auto-Quantity (<span data-t="unit">Litre</span>)</label>
-        <input id="mFuel" type="number" inputmode="decimal" min="0" step="any" placeholder="Eg: 4.36"></div>
+        <input id="mFuel" type="number" inputmode="decimal" min="0" step="any" placeholder="Eg: 0.87"></div>
     </div>
     <div class="sfc-result" id="mOut" aria-live="polite"></div>
-    <p class="sfc-tip">💡 Sirf ₹ daalein ya Litre — Live Rate ke hisaab se doosra box apne aap calculate ho jayega!</p>
+    <p class="sfc-tip">💡 <strong>3-in-1 Smart Mode:</strong> (1) ₹/Litre + Mileage daalein = Kitne KM chalegi pata karein, (2) Distance + ₹/Litre daalein = Asli Mileage nikalein, (3) Teeno daalein = Asli vs Set Mileage compare karein!</p>
   </section>
 
   <!-- TOOL 3: MAHINE KA BUDGET -->
@@ -641,7 +658,7 @@
     set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} }
   };
 
-  // Clear old buggy cache keys automatically
+  // Clear legacy cache keys automatically
   try {
     localStorage.removeItem('sfc_state');
     localStorage.removeItem('sfc_universal_v4');
@@ -690,6 +707,7 @@
 
   let activeShareText = '';
   let lastMileageFuelEdit = 'amt';
+  let lastCalculatedActualMileage = 0;
 
   const num = id => Math.max(0, parseFloat($(id)?.value) || 0);
   const fmtMoney = v => {
@@ -873,10 +891,10 @@
       i.placeholder = 'Example: ' + f.ph[i.dataset.ph];
     });
 
-    // Restore saved mileage, and only restore custom price if city is 'custom'
+    // Restore saved mileage across all tabs (including #mMil)
     const v = state.vals[state.fuel] || {};
     root.querySelectorAll('[data-save="m"]').forEach(i => {
-      if (v.m !== undefined) i.value = v.m;
+      i.value = v.m !== undefined ? v.m : '';
     });
     if ($('citySelect').value === 'custom') {
       root.querySelectorAll('[data-save="p"]').forEach(i => {
@@ -941,6 +959,19 @@
   $('mFuelAmt').addEventListener('input', () => { lastMileageFuelEdit = 'amt'; });
   $('mFuel').addEventListener('input', () => { lastMileageFuelEdit = 'lit'; });
 
+  // Event delegation for "Save Actual Mileage" button inside #mOut
+  $('mOut').addEventListener('click', e => {
+    if (e.target && e.target.id === 'btnApplyActualMil' && lastCalculatedActualMileage > 0) {
+      const formattedMil = Number(lastCalculatedActualMileage.toFixed(2));
+      (state.vals[state.fuel] ||= {})['m'] = formattedMil;
+      root.querySelectorAll('[data-save="m"]').forEach(inp => {
+        inp.value = formattedMil;
+      });
+      store.set(STORAGE_KEY, state);
+      calc();
+    }
+  });
+
   // ---------- 6 CALCULATORS ----------
   function calcCost() {
     const f = F[state.fuel], u = UNITS[state.unitSys], out = $('cOut');
@@ -974,7 +1005,9 @@
   function calcMileage() {
     const f = F[state.fuel], u = UNITS[state.unitSys], out = $('mOut');
     const price = num('mPrice');
+    const userMil = num('mMil');
 
+    // Sync ₹ Amount <-> Litre Quantity
     if (price > 0) {
       if (lastMileageFuelEdit === 'amt' && $('mFuelAmt').value !== '') {
         $('mFuel').value = (num('mFuelAmt') / price).toFixed(2);
@@ -984,26 +1017,82 @@
     }
 
     const od = num('mEnd') - num('mStart');
-    const dist = od > 0 ? od : num('mDist'), fuel = num('mFuel');
+    const dist = od > 0 ? od : num('mDist');
+    const fuel = num('mFuel');
 
-    if (!(dist > 0 && fuel > 0)) {
-      out.innerHTML = empty(`Distance (${u.dist}) aur ₹ (ya ${f.unit}) daalein.`);
-      if (state.tool === 'mileage') activeShareText = '';
+    // CASE 1: Distance + Fuel both entered (Calculate Actual Mileage & Compare if userMil is also entered)
+    if (dist > 0 && fuel > 0) {
+      const actualMil = dist / fuel;
+      lastCalculatedActualMileage = actualMil;
+
+      let h = `<div class="sfc-sub">⚡ Asli Mileage Report</div>`
+            + line('Gaadi ka Asli Mileage', `${qty(actualMil)} ${u.dist}/${f.unit}`, 'big')
+            + line('Chali Hui Distance', `${qty(dist)} ${u.dist}`, 'soft')
+            + line('Fuel Laga', `${qty(fuel)} ${f.unit}` + (price > 0 ? ` (${fmtMoney(fuel * price)})` : ''), 'soft');
+
+      if (price > 0) {
+        h += line(`1 ${u.dist} ka Asli Kharcha`, fmtMoney(price / actualMil))
+           + line(`100 ${u.dist} ka Asli Kharcha`, fmtMoney((price / actualMil) * 100));
+      }
+
+      if (userMil > 0) {
+        const diffMil = actualMil - userMil;
+        const expectedDist = fuel * userMil;
+        const diffSign = diffMil >= 0 ? '+' : '';
+        h += `<div class="sfc-sub">📊 Set Mileage (${qty(userMil)} ${u.dist}/${f.unit}) se Tulna</div>`
+           + line('Mileage mein Farq', `${diffSign}${qty(diffMil)} ${u.dist}/${f.unit}`)
+           + line(`${qty(fuel)} ${f.unit} mein chalni chahiye thi`, `~${qty(expectedDist)} ${u.dist}`, 'soft');
+      } else {
+        h += `<button type="button" class="sfc-inline-btn" id="btnApplyActualMil">📌 Is Mileage (${qty(actualMil)} ${u.dist}/${f.unit}) ko Gaadi ke Mileage mein Save karein</button>`;
+      }
+
+      out.innerHTML = h;
+      if (state.tool === 'mileage') {
+        activeShareText = `🚗 *Mileage Check (${f.name})*\n🛣️ Distance: ${qty(dist)} ${u.dist}\n🛢️ Fuel: ${qty(fuel)} ${f.unit}\n⚡ Asli Mileage: ${qty(actualMil)} ${u.dist}/${f.unit}`;
+      }
       return;
     }
 
-    const mil = dist / fuel;
-    let h = line('Gaadi ka Asli Mileage', `${qty(mil)} ${u.dist}/${f.unit}`, 'big')
-          + line('Chali Hui Distance', `${qty(dist)} ${u.dist}`, 'soft');
-    if (price > 0) {
-      h += line(`1 ${u.dist} ka kharcha`, fmtMoney(price / mil))
-         + line(`100 ${u.dist} ka kharcha`, fmtMoney((price / mil) * 100));
-    }
-    out.innerHTML = h;
+    // CASE 2: Fuel (₹ or Litre) + Gaadi ka Mileage entered (Calculate how far vehicle will run!)
+    if (fuel > 0 && userMil > 0) {
+      const estRange = fuel * userMil;
+      const fuelCost = fuel * price;
+      let h = `<div class="sfc-sub">🛣️ Fuel aur Mileage se Range Hisaab</div>`
+            + line(`Is ${f.name} mein Gaadi Chalegi`, `~${qty(estRange)} ${u.dist}`, 'big')
+            + line('Fuel Quantity', `${qty(fuel)} ${f.unit}` + (price > 0 ? ` (${fmtMoney(fuelCost)})` : ''))
+            + line('Set Mileage', `${qty(userMil)} ${u.dist}/${f.unit}`, 'soft');
 
-    if (state.tool === 'mileage') {
-      activeShareText = `🚗 *Mileage Check (${f.name})*\n🛣️ Distance: ${qty(dist)} ${u.dist}\n⚡ Mileage: ${qty(mil)} ${u.dist}/${f.unit}`;
+      if (price > 0) {
+        h += line(`1 ${u.dist} ka Kharcha`, fmtMoney(price / userMil))
+           + line(`100 ${u.dist} ka Kharcha`, fmtMoney((price / userMil) * 100), 'soft');
+      }
+
+      out.innerHTML = h;
+      if (state.tool === 'mileage') {
+        activeShareText = `🚗 *Fuel Range Hisaab (${f.name})*\n🛢️ Fuel: ${qty(fuel)} ${f.unit}${price > 0 ? ' (' + fmtMoney(fuelCost) + ')' : ''}\n⚡ Mileage: ${qty(userMil)} ${u.dist}/${f.unit}\n🛣️ Kitni Chalegi: ~${qty(estRange)} ${u.dist}`;
+      }
+      return;
     }
+
+    // CASE 3: Distance + Gaadi ka Mileage entered (Calculate required Fuel & Cost)
+    if (dist > 0 && userMil > 0) {
+      const reqFuel = dist / userMil;
+      const reqCost = reqFuel * price;
+      let h = `<div class="sfc-sub">🛢️ Distance aur Mileage se Fuel Hisaab</div>`
+            + line(`${qty(dist)} ${u.dist} mein ${f.name} lagega`, `${qty(reqFuel)} ${f.unit}`, 'big');
+      if (price > 0) {
+        h += line('Kul Fuel Kharcha', fmtMoney(reqCost))
+           + line(`1 ${u.dist} ka Kharcha`, fmtMoney(price / userMil), 'soft');
+      }
+      out.innerHTML = h;
+      if (state.tool === 'mileage') {
+        activeShareText = `🚗 *Mileage Fuel Estimate (${f.name})*\n🛣️ Distance: ${qty(dist)} ${u.dist}\n⚡ Mileage: ${qty(userMil)} ${u.dist}/${f.unit}\n🛢️ Fuel Needed: ${qty(reqFuel)} ${f.unit}`;
+      }
+      return;
+    }
+
+    out.innerHTML = empty(`Distance (${u.dist}), Gaadi ka Mileage (${u.dist}/${f.unit}), ya ₹/Litre mein se koi bhi 2 cheezein daalein.`);
+    if (state.tool === 'mileage') activeShareText = '';
   }
 
   function calcMonth() {
