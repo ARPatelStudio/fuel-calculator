@@ -3,11 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Universal Smart Fuel, DJ & Mileage Calculator v4.0</title>
-  <meta name="description" content="Universal Petrol, Diesel, E20 Ethanol, CNG, EV, Mileage & DJ Generator Fuel Cost Calculator">
-  <script>
-    window.LIVE_FUEL_API_URL = "/api/fuel-rates";
-  </script>
+  <title>Universal Real-Time Fuel, DJ & Mileage Calculator</title>
+  <meta name="description" content="Direct GitHub-to-Vercel Universal Live Petrol, Diesel, E20 Ethanol, CNG, EV, Mileage & DJ Generator Calculator">
   <style>
     :root {
       --bg: #ffffff;
@@ -17,7 +14,7 @@
       --bd: #e2e8f0;
       --inp: #ffffff;
       --ac: #ef4444;
-      --shadow: 0 12px 32px rgba(15, 23, 42, 0.08);
+      --shadow: 0 14px 34px rgba(15, 23, 42, 0.09);
     }
     .sfc.dark {
       --bg: #0b1120;
@@ -26,12 +23,12 @@
       --mut: #94a3b8;
       --bd: #26354d;
       --inp: #0f172a;
-      --shadow: 0 12px 32px rgba(0, 0, 0, 0.45);
+      --shadow: 0 14px 34px rgba(0, 0, 0, 0.5);
     }
     * { box-sizing: border-box; }
     body {
       margin: 0;
-      padding: 12px;
+      padding: 14px;
       background: #e2e8f0;
       font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
       transition: background 0.25s;
@@ -39,8 +36,8 @@
     body.dark-body { background: #050811; }
 
     .sfc {
-      max-width: 520px;
-      margin: 10px auto;
+      max-width: 530px;
+      margin: 8px auto;
       background: var(--bg);
       color: var(--tx);
       border: 1px solid var(--bd);
@@ -70,16 +67,13 @@
     }
     .sfc-head h1 {
       margin: 0;
-      font-size: 1.25rem;
+      font-size: 1.22rem;
       font-weight: 800;
       color: var(--tx);
-      display: flex;
-      align-items: center;
-      gap: 6px;
     }
     .sfc-head p {
       margin: 4px 0 0;
-      font-size: 0.84rem;
+      font-size: 0.82rem;
       color: var(--mut);
     }
     .sfc-top-actions {
@@ -88,9 +82,9 @@
       gap: 6px;
     }
     .sfc-unit-sel {
-      padding: 4px 8px;
+      padding: 5px 8px;
       font-size: 0.78rem;
-      font-weight: 600;
+      font-weight: 700;
       border-radius: 8px;
       border: 1px solid var(--bd);
       background: var(--inp);
@@ -100,13 +94,13 @@
     .sfc-icon {
       background: var(--inp);
       border: 1px solid var(--bd);
-      font-size: 1.05rem;
+      font-size: 1rem;
       cursor: pointer;
       padding: 5px 8px;
       border-radius: 8px;
     }
 
-    /* Navigation Tabs (6 Universal Tools) */
+    /* 6 Tools Grid */
     .sfc-tools {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
@@ -134,7 +128,7 @@
       box-shadow: 0 2px 5px rgba(0, 0, 0, 0.12);
     }
 
-    /* Fuel Pills */
+    /* 5 Fuel Pills */
     .sfc-fuels {
       display: flex;
       gap: 6px;
@@ -161,29 +155,24 @@
       color: #fff;
     }
 
-    /* Live City Bar */
+    /* Universal City & GPS Auto-Detect Bar */
     .sfc-location {
       display: flex;
       align-items: center;
-      gap: 8px;
+      gap: 6px;
       padding: 8px 14px 12px;
       border-bottom: 1px dashed var(--bd);
       flex-wrap: wrap;
     }
-    .sfc-location label {
-      font-size: 0.8rem;
-      font-weight: 700;
-      color: var(--mut);
-    }
     .sfc-select {
       flex: 1;
-      min-width: 140px;
+      min-width: 150px;
       padding: 7px 10px;
       border: 1px solid var(--bd);
       border-radius: 8px;
       background: var(--inp);
       color: var(--tx);
-      font-size: 0.86rem;
+      font-size: 0.85rem;
       font-weight: 600;
       cursor: pointer;
     }
@@ -198,13 +187,14 @@
     }
     .sfc-badge.fetching { background: #f59e0b; }
     .sfc-badge.error { background: #ef4444; }
-    .sfc-refresh {
-      background: transparent;
+    .sfc-mini-btn {
+      background: var(--panel);
       border: 1px solid var(--bd);
       color: var(--tx);
       border-radius: 8px;
-      padding: 4px 8px;
-      font-size: 0.78rem;
+      padding: 5px 8px;
+      font-size: 0.76rem;
+      font-weight: 700;
       cursor: pointer;
     }
 
@@ -222,7 +212,6 @@
       to { opacity: 1; transform: none; }
     }
 
-    /* Trip Collapsible */
     .sfc-trip-details {
       margin-bottom: 12px;
       background: color-mix(in srgb, var(--bd) 35%, transparent);
@@ -238,7 +227,6 @@
       outline: none;
     }
 
-    /* Form Grid */
     .sfc-row {
       display: grid;
       grid-template-columns: 1fr 1fr;
@@ -276,7 +264,7 @@
       cursor: pointer;
     }
 
-    /* Result Box */
+    /* Results */
     .sfc-result {
       margin-top: 6px;
       padding: 12px 14px;
@@ -316,7 +304,6 @@
       font-weight: 800;
       color: var(--ac);
       text-transform: uppercase;
-      letter-spacing: 0.4px;
     }
     .sfc-sub:first-child { margin-top: 0; }
     .sfc-empty {
@@ -332,15 +319,9 @@
       color: var(--mut);
     }
 
-    /* Global Action Bar */
-    .sfc-global-actions {
-      padding: 10px 18px 14px;
-    }
-    .sfc-actions {
-      display: flex;
-      gap: 7px;
-      flex-wrap: wrap;
-    }
+    /* Action Bar */
+    .sfc-global-actions { padding: 10px 18px 14px; }
+    .sfc-actions { display: flex; gap: 7px; flex-wrap: wrap; }
     .sfc-btn {
       flex: 1;
       min-width: 85px;
@@ -352,16 +333,14 @@
       font-weight: 700;
       font-size: 0.82rem;
       cursor: pointer;
-      transition: opacity 0.2s;
     }
-    .sfc-btn:hover { opacity: 0.92; }
     .sfc-btn.alt {
       background: transparent;
       color: var(--tx);
       border-color: var(--bd);
     }
 
-    /* Saved Trips Logbook */
+    /* Logbook */
     .sfc-logbook {
       margin: 4px 18px 14px;
       padding: 10px 12px;
@@ -404,12 +383,11 @@
 <body>
 
 <div id="sfc" class="sfc">
-  <!-- Header -->
   <div class="sfc-head">
     <div class="sfc-top">
-      <h1>⛽ Universal Fuel Calculator</h1>
+      <h1>⛽ Universal Fuel & DJ Calculator</h1>
       <div class="sfc-top-actions">
-        <select id="unitSystem" class="sfc-unit-sel" aria-label="Currency and Unit System">
+        <select id="unitSystem" class="sfc-unit-sel" aria-label="Currency and Unit">
           <option value="inr">🇮🇳 ₹ INR (KM/L)</option>
           <option value="usd">🇺🇸 $ USD (Mi/Gal)</option>
           <option value="eur">🇪🇺 € EUR (KM/L)</option>
@@ -417,64 +395,38 @@
         <button type="button" id="sfc-theme" class="sfc-icon" title="Dark / Light Mode">🌙</button>
       </div>
     </div>
-    <p>Safar, Asli Mileage, DJ Generator, Tank Full aur E20 Ethanol Hisaab — End-to-End.</p>
+    <p>Direct GitHub-to-Vercel Live Petrol, Diesel, E20, Mileage & DJ Generator App</p>
   </div>
 
-  <!-- 6 Universal Tools Navigation -->
-  <div class="sfc-tools" role="tablist" aria-label="Calculator Modes">
-    <button type="button" role="tab" class="sfc-tool on" data-tool="cost" aria-selected="true">💰 Safar</button>
-    <button type="button" role="tab" class="sfc-tool" data-tool="mileage" aria-selected="false">🚗 Mileage</button>
-    <button type="button" role="tab" class="sfc-tool" data-tool="month" aria-selected="false">📅 Mahina</button>
-    <button type="button" role="tab" class="sfc-tool" data-tool="litre" aria-selected="false">🛢️ Litre</button>
-    <button type="button" role="tab" class="sfc-tool" data-tool="dj" aria-selected="false">🔊 DJ / Gen</button>
-    <button type="button" role="tab" class="sfc-tool" data-tool="ethanol" aria-selected="false">🧪 E20 Mix</button>
+  <!-- 6 Universal Tools -->
+  <div class="sfc-tools" role="tablist">
+    <button type="button" role="tab" class="sfc-tool on" data-tool="cost">💰 Safar</button>
+    <button type="button" role="tab" class="sfc-tool" data-tool="mileage">🚗 Mileage</button>
+    <button type="button" role="tab" class="sfc-tool" data-tool="month">📅 Mahina</button>
+    <button type="button" role="tab" class="sfc-tool" data-tool="litre">🛢️ Litre</button>
+    <button type="button" role="tab" class="sfc-tool" data-tool="dj">🔊 DJ / Gen</button>
+    <button type="button" role="tab" class="sfc-tool" data-tool="ethanol">🧪 E20 Mix</button>
   </div>
 
   <!-- 5 Fuel Types -->
-  <div class="sfc-fuels" role="radiogroup" aria-label="Fuel Type">
-    <button type="button" role="radio" class="sfc-fuel on" data-fuel="petrol" aria-checked="true">Petrol</button>
-    <button type="button" role="radio" class="sfc-fuel" data-fuel="ethanol" aria-checked="false">E20 Petrol</button>
-    <button type="button" role="radio" class="sfc-fuel" data-fuel="diesel" aria-checked="false">Diesel</button>
-    <button type="button" role="radio" class="sfc-fuel" data-fuel="cng" aria-checked="false">CNG</button>
-    <button type="button" role="radio" class="sfc-fuel" data-fuel="ev" aria-checked="false">EV</button>
+  <div class="sfc-fuels" role="radiogroup">
+    <button type="button" role="radio" class="sfc-fuel on" data-fuel="petrol">Petrol</button>
+    <button type="button" role="radio" class="sfc-fuel" data-fuel="ethanol">E20 Petrol</button>
+    <button type="button" role="radio" class="sfc-fuel" data-fuel="diesel">Diesel</button>
+    <button type="button" role="radio" class="sfc-fuel" data-fuel="cng">CNG</button>
+    <button type="button" role="radio" class="sfc-fuel" data-fuel="ev">EV</button>
   </div>
 
-  <!-- Live City Rate Selector -->
+  <!-- Live City Selector + Auto-Detect -->
   <div class="sfc-location">
-    <label for="citySelect">📍 City Rate:</label>
-    <select id="citySelect" class="sfc-select">
-      <option value="custom">✏️ Custom (Rate Khud Likhein)</option>
-      <optgroup label="Madhya Pradesh (MP)">
-        <option value="indore">Indore, MP</option>
-        <option value="bhopal">Bhopal, MP</option>
-        <option value="ujjain">Ujjain, MP</option>
-        <option value="jabalpur">Jabalpur, MP</option>
-        <option value="gwalior">Gwalior, MP</option>
-      </optgroup>
-      <optgroup label="Major Indian Cities">
-        <option value="delhi">New Delhi</option>
-        <option value="mumbai">Mumbai, MH</option>
-        <option value="pune">Pune, MH</option>
-        <option value="nagpur">Nagpur, MH</option>
-        <option value="ahmedabad">Ahmedabad, GJ</option>
-        <option value="surat">Surat, GJ</option>
-        <option value="jaipur">Jaipur, RJ</option>
-        <option value="lucknow">Lucknow, UP</option>
-        <option value="noida">Noida, UP</option>
-        <option value="varanasi">Varanasi, UP</option>
-        <option value="patna">Patna, BR</option>
-        <option value="kolkata">Kolkata, WB</option>
-        <option value="bengaluru">Bengaluru, KA</option>
-        <option value="hyderabad">Hyderabad, TS</option>
-        <option value="chennai">Chennai, TN</option>
-        <option value="kochi">Kochi, KL</option>
-        <option value="chandigarh">Chandigarh, PB</option>
-        <option value="raipur">Raipur, CG</option>
-        <option value="bhubaneswar">Bhubaneswar, OD</option>
-      </optgroup>
+    <select id="citySelect" class="sfc-select" aria-label="Select City">
+      <option value="custom">✏️ Custom (Manual Rate)</option>
+      <optgroup label="Madhya Pradesh (MP)" id="mpCities"></optgroup>
+      <optgroup label="All India Major Cities" id="inCities"></optgroup>
     </select>
-    <span id="rateStatus" class="sfc-badge fetching">🔄 Syncing...</span>
-    <button type="button" id="refreshRatesBtn" class="sfc-refresh" title="Refresh Live Rates">↻</button>
+    <button type="button" id="btnAutoLoc" class="sfc-mini-btn" title="Auto Detect My City">📍 Detect</button>
+    <button type="button" id="refreshRatesBtn" class="sfc-mini-btn" title="Fetch Live Rate">↻</button>
+    <span id="rateStatus" class="sfc-badge fetching">🔄 Live Sync...</span>
   </div>
 
   <!-- TOOL 1: SAFAR KHARCHA -->
@@ -496,7 +448,7 @@
     <div class="sfc-row">
       <div class="sfc-field"><label for="cMil">Mileage (<span data-t="eff">KM/L</span>)</label>
         <input id="cMil" type="number" inputmode="decimal" min="0" step="any" data-ph="m" data-save="m"></div>
-      <div class="sfc-field"><label for="cPrice">Rate (<span data-t="price">₹/Litre</span>)</label>
+      <div class="sfc-field"><label for="cPrice">Live Rate (<span data-t="price">₹/Litre</span>)</label>
         <input id="cPrice" type="number" inputmode="decimal" min="0" step="any" data-ph="p" data-save="p"></div>
     </div>
     <div class="sfc-row">
@@ -519,7 +471,7 @@
     <div class="sfc-field"><label for="mDist">Ya Seedha Chali Hui Distance (<span data-u="dist">KM</span>)</label>
       <input id="mDist" type="number" inputmode="decimal" min="0" step="any" placeholder="Example: 200"></div>
 
-    <div class="sfc-field"><label for="mPrice">Rate (<span data-t="price">₹/Litre</span>)</label>
+    <div class="sfc-field"><label for="mPrice">Live Rate (<span data-t="price">₹/Litre</span>)</label>
       <input id="mPrice" type="number" inputmode="decimal" min="0" step="any" data-ph="p" data-save="p"></div>
 
     <div class="sfc-row">
@@ -529,7 +481,7 @@
         <input id="mFuel" type="number" inputmode="decimal" min="0" step="any" placeholder="Eg: 4.7"></div>
     </div>
     <div class="sfc-result" id="mOut" aria-live="polite"></div>
-    <p class="sfc-tip">💡 Sirf ₹ daalein ya Litre — Rate ke hisaab se doosra box apne aap bhar jayega!</p>
+    <p class="sfc-tip">💡 Sirf ₹ daalein ya Litre — Live Rate ke hisaab se doosra box apne aap calculate ho jayega!</p>
   </section>
 
   <!-- TOOL 3: MAHINE KA BUDGET -->
@@ -543,7 +495,7 @@
     <div class="sfc-row">
       <div class="sfc-field"><label for="dMil">Mileage (<span data-t="eff">KM/L</span>)</label>
         <input id="dMil" type="number" inputmode="decimal" min="0" step="any" data-ph="m" data-save="m"></div>
-      <div class="sfc-field"><label for="dPrice">Rate (<span data-t="price">₹/Litre</span>)</label>
+      <div class="sfc-field"><label for="dPrice">Live Rate (<span data-t="price">₹/Litre</span>)</label>
         <input id="dPrice" type="number" inputmode="decimal" min="0" step="any" data-ph="p" data-save="p"></div>
     </div>
     <div class="sfc-result" id="dOut" aria-live="polite"></div>
@@ -552,7 +504,7 @@
   <!-- TOOL 4: LITRE & TANK CALCULATOR -->
   <section class="sfc-panel" id="p-litre">
     <div class="sfc-row">
-      <div class="sfc-field"><label for="lPrice">Rate (<span data-t="price">₹/Litre</span>)</label>
+      <div class="sfc-field"><label for="lPrice">Live Rate (<span data-t="price">₹/Litre</span>)</label>
         <input id="lPrice" type="number" inputmode="decimal" min="0" step="any" data-ph="p" data-save="p"></div>
       <div class="sfc-field"><label for="lMil">Mileage (<span data-t="eff">KM/L</span>) — Optional</label>
         <input id="lMil" type="number" inputmode="decimal" min="0" step="any" data-ph="m" data-save="m"></div>
@@ -572,31 +524,30 @@
     <div class="sfc-result" id="lOut" aria-live="polite"></div>
   </section>
 
-  <!-- TOOL 5: DJ / GENERATOR & PICKUP CALCULATOR (NEW) -->
+  <!-- TOOL 5: DJ / GENERATOR & PICKUP CALCULATOR -->
   <section class="sfc-panel" id="p-dj">
     <div class="sfc-row">
-      <div class="sfc-field"><label for="djHours">Generator Kitne Ghante Chala?</label>
+      <div class="sfc-field"><label for="djHours">DJ Generator Kitne Ghante Chala?</label>
         <input id="djHours" type="number" inputmode="decimal" min="0" step="any" placeholder="Eg: 6 Hours"></div>
       <div class="sfc-field"><label for="djBurn">Generator Khapat (<span data-t="unit">Litre</span>/Hour)</label>
-        <input id="djBurn" type="number" inputmode="decimal" min="0" step="any" placeholder="Eg: 2.5 L/Hr" value="2.5"></div>
+        <input id="djBurn" type="number" inputmode="decimal" min="0" step="any" value="2.5"></div>
     </div>
     <div class="sfc-row">
-      <div class="sfc-field"><label for="djDist">DJ Gaadi / Pickup Safar (<span data-u="dist">KM</span>)</label>
+      <div class="sfc-field"><label for="djDist">DJ Pickup / Gaadi Safar (<span data-u="dist">KM</span>)</label>
         <input id="djDist" type="number" inputmode="decimal" min="0" step="any" placeholder="Eg: 60 KM"></div>
       <div class="sfc-field"><label for="djMil">DJ Gaadi ka Mileage (<span data-t="eff">KM/L</span>)</label>
-        <input id="djMil" type="number" inputmode="decimal" min="0" step="any" placeholder="Eg: 12" value="12"></div>
+        <input id="djMil" type="number" inputmode="decimal" min="0" step="any" value="12"></div>
     </div>
     <div class="sfc-row">
-      <div class="sfc-field"><label for="djPrice">Fuel Rate (<span data-t="price">₹/Litre</span>)</label>
+      <div class="sfc-field"><label for="djPrice">Live Fuel Rate (<span data-t="price">₹/Litre</span>)</label>
         <input id="djPrice" type="number" inputmode="decimal" min="0" step="any" data-ph="p" data-save="p"></div>
-      <div class="sfc-field"><label for="djExtra">Operator / Labour (<span data-u="curr">₹</span>)</label>
+      <div class="sfc-field"><label for="djExtra">Operator / Rent (<span data-u="curr">₹</span>)</label>
         <input id="djExtra" type="number" inputmode="decimal" min="0" step="any" placeholder="0"></div>
     </div>
     <div class="sfc-result" id="djOut" aria-live="polite"></div>
-    <p class="sfc-tip">🔊 DJ Event mein Generator (Per Hour) aur Loading Pickup (Per KM) dono ka kul Diesel/Petrol hisaab ek sath nikalein.</p>
   </section>
 
-  <!-- TOOL 6: E20 ETHANOL MIX ANALYZER (NEW) -->
+  <!-- TOOL 6: E20 ETHANOL MIX ANALYZER -->
   <section class="sfc-panel" id="p-ethanol">
     <div class="sfc-row">
       <div class="sfc-field"><label for="ePurePrice">Pure Petrol Rate (<span data-u="curr">₹</span>/L)</label>
@@ -619,10 +570,9 @@
     <div class="sfc-field"><label for="eTripDist">Compare for Distance (<span data-u="dist">KM</span>)</label>
       <input id="eTripDist" type="number" inputmode="decimal" min="0" step="any" value="100"></div>
     <div class="sfc-result" id="eOut" aria-live="polite"></div>
-    <p class="sfc-tip">🧪 Ethanol mein Pure Petrol se ~33% kam energy hoti hai, jisse E20 mein ~6.6% mileage kam milta hai.</p>
   </section>
 
-  <!-- Universal Action Buttons (WhatsApp, Copy, Save History, Reset) -->
+  <!-- Universal Action Bar -->
   <div class="sfc-global-actions">
     <div class="sfc-actions">
       <button type="button" class="sfc-btn" id="btnWA">📲 WhatsApp</button>
@@ -632,19 +582,19 @@
     </div>
   </div>
 
-  <!-- Saved Calculations Logbook -->
+  <!-- Saved Logbook -->
   <div class="sfc-logbook" id="logbookBox" style="display:none;">
     <div class="sfc-log-head">
       <span>📊 Saved History (<span id="logCount">0</span>)</span>
       <div>
-        <button type="button" class="sfc-refresh" id="btnExportCsv">⬇️ CSV</button>
-        <button type="button" class="sfc-refresh" id="btnClearLog">🗑️</button>
+        <button type="button" class="sfc-mini-btn" id="btnExportCsv">⬇️ CSV</button>
+        <button type="button" class="sfc-mini-btn" id="btnClearLog">🗑️</button>
       </div>
     </div>
     <div class="sfc-log-list" id="logList"></div>
   </div>
 
-  <p class="sfc-foot">Universal v4.0 • Powered by Vercel Serverless API & Local Storage Sync</p>
+  <p class="sfc-foot" id="footerSource">Direct GitHub-to-Vercel CI/CD • Universal Real-Time Engine</p>
 </div>
 
 <script>
@@ -657,14 +607,12 @@
     set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} }
   };
 
-  // Currency & Unit Systems
   const UNITS = {
-    inr: { curr: '₹', locale: 'en-IN', dist: 'KM', vol: 'Litre', effSuffix: 'KM/L' },
-    usd: { curr: '$', locale: 'en-US', dist: 'Miles', vol: 'Gallon', effSuffix: 'MPG' },
-    eur: { curr: '€', locale: 'de-DE', dist: 'KM', vol: 'Litre', effSuffix: 'KM/L' }
+    inr: { curr: '₹', locale: 'en-IN', dist: 'KM', vol: 'Litre' },
+    usd: { curr: '$', locale: 'en-US', dist: 'Miles', vol: 'Gallon' },
+    eur: { curr: '€', locale: 'de-DE', dist: 'KM', vol: 'Litre' }
   };
 
-  // 5 Fuel Configurations
   const F = {
     petrol:  { name: 'Petrol',     unit: 'Litre', eff: 'KM/L',   price: '₹/Litre', ph: { d: 150, m: 45, p: 106.48 }, co2: 2.31, color: '#ef4444' },
     ethanol: { name: 'E20 Petrol', unit: 'Litre', eff: 'KM/L',   price: '₹/Litre', ph: { d: 150, m: 42, p: 103.50 }, co2: 1.85, color: '#10b981' },
@@ -673,37 +621,20 @@
     ev:      { name: 'EV',         unit: 'kWh',   eff: 'KM/kWh', price: '₹/kWh',   ph: { d: 200, m: 7,  p: 7.50 },   co2: 0,    color: '#7c3aed' }
   };
 
-  // Built-in Offline Fallback for 24 Cities (instant availability even before API resolves)
   let cityRates = {
-    indore:      { petrol: 106.48, ethanol: 103.50, diesel: 91.88, cng: 89.00, ev: 7.50 },
-    bhopal:      { petrol: 106.47, ethanol: 103.50, diesel: 91.84, cng: 88.50, ev: 7.50 },
-    ujjain:      { petrol: 106.82, ethanol: 103.80, diesel: 92.19, cng: 89.20, ev: 7.50 },
-    jabalpur:    { petrol: 106.50, ethanol: 103.55, diesel: 91.90, cng: 89.50, ev: 7.50 },
-    gwalior:     { petrol: 106.40, ethanol: 103.40, diesel: 91.78, cng: 88.00, ev: 7.50 },
-    delhi:       { petrol: 94.72,  ethanol: 92.20,  diesel: 87.62, cng: 75.09, ev: 8.00 },
-    mumbai:      { petrol: 104.21, ethanol: 101.50, diesel: 92.15, cng: 77.00, ev: 9.50 },
-    pune:        { petrol: 104.08, ethanol: 101.30, diesel: 90.61, cng: 85.00, ev: 9.00 },
-    nagpur:      { petrol: 103.96, ethanol: 101.20, diesel: 90.52, cng: 87.00, ev: 8.80 },
-    ahmedabad:   { petrol: 94.44,  ethanol: 91.90,  diesel: 90.11, cng: 78.50, ev: 7.80 },
-    surat:       { petrol: 94.31,  ethanol: 91.80,  diesel: 90.00, cng: 78.00, ev: 7.80 },
-    jaipur:      { petrol: 104.88, ethanol: 102.10, diesel: 90.36, cng: 86.40, ev: 8.20 },
-    lucknow:     { petrol: 94.65,  ethanol: 92.10,  diesel: 87.76, cng: 94.00, ev: 8.10 },
-    noida:       { petrol: 94.83,  ethanol: 92.30,  diesel: 87.96, cng: 81.70, ev: 8.00 },
-    varanasi:    { petrol: 95.50,  ethanol: 92.90,  diesel: 88.66, cng: 92.50, ev: 8.10 },
-    patna:       { petrol: 105.18, ethanol: 102.40, diesel: 92.04, cng: 91.46, ev: 8.30 },
-    kolkata:     { petrol: 104.95, ethanol: 102.20, diesel: 91.76, cng: 88.00, ev: 8.50 },
-    bengaluru:   { petrol: 102.86, ethanol: 100.10, diesel: 88.94, cng: 84.50, ev: 8.50 },
-    hyderabad:   { petrol: 107.41, ethanol: 104.50, diesel: 95.65, cng: 92.00, ev: 8.60 },
-    chennai:     { petrol: 100.75, ethanol: 98.10,  diesel: 92.34, cng: 86.50, ev: 8.00 },
-    kochi:       { petrol: 105.46, ethanol: 102.70, diesel: 94.46, cng: 85.00, ev: 8.20 },
-    chandigarh:  { petrol: 94.24,  ethanol: 91.70,  diesel: 82.40, cng: 84.00, ev: 7.40 },
-    raipur:      { petrol: 100.39, ethanol: 97.80,  diesel: 93.33, cng: 87.00, ev: 7.60 },
-    bhubaneswar: { petrol: 101.06, ethanol: 98.40,  diesel: 92.64, cng: 88.00, ev: 7.90 }
+    indore:    { name: 'Indore, MP',    state: 'madhya-pradesh', petrol: 106.48, ethanol: 103.50, diesel: 91.88, cng: 89.00, ev: 7.50 },
+    bhopal:    { name: 'Bhopal, MP',    state: 'madhya-pradesh', petrol: 106.47, ethanol: 103.50, diesel: 91.84, cng: 88.50, ev: 7.50 },
+    ujjain:    { name: 'Ujjain, MP',    state: 'madhya-pradesh', petrol: 106.82, ethanol: 103.80, diesel: 92.19, cng: 89.20, ev: 7.50 },
+    jabalpur:  { name: 'Jabalpur, MP',  state: 'madhya-pradesh', petrol: 106.50, ethanol: 103.55, diesel: 91.90, cng: 89.50, ev: 7.50 },
+    gwalior:   { name: 'Gwalior, MP',   state: 'madhya-pradesh', petrol: 106.40, ethanol: 103.40, diesel: 91.78, cng: 88.00, ev: 7.50 },
+    delhi:     { name: 'New Delhi',     state: 'delhi',          petrol: 94.77,  ethanol: 92.20,  diesel: 87.67, cng: 75.09, ev: 8.00 },
+    mumbai:    { name: 'Mumbai, MH',    state: 'maharashtra',    petrol: 103.50, ethanol: 100.80, diesel: 90.03, cng: 77.00, ev: 9.50 },
+    bengaluru: { name: 'Bengaluru, KA', state: 'karnataka',      petrol: 102.92, ethanol: 100.10, diesel: 88.99, cng: 84.50, ev: 8.50 }
   };
 
   const state = Object.assign(
     { tool: 'cost', fuel: 'petrol', city: 'indore', unitSys: 'inr', vals: {}, logs: [] },
-    store.get('sfc_universal_v4') || {}
+    store.get('sfc_vercel_v5') || {}
   );
   if (!F[state.fuel]) state.fuel = 'petrol';
   if (!UNITS[state.unitSys]) state.unitSys = 'inr';
@@ -720,6 +651,27 @@
   const line = (l, v, c = '') => `<div class="sfc-line ${c}"><span>${l}</span><strong>${v}</strong></div>`;
   const empty = t => `<p class="sfc-empty">${t}</p>`;
 
+  // Populate City Dropdown Dynamically
+  function populateCityDropdown() {
+    const mpGroup = $('mpCities');
+    const inGroup = $('inCities');
+    mpGroup.innerHTML = '';
+    inGroup.innerHTML = '';
+
+    Object.keys(cityRates).forEach(key => {
+      const item = cityRates[key];
+      const opt = document.createElement('option');
+      opt.value = key;
+      opt.textContent = item.name || key.toUpperCase();
+      if (item.state === 'madhya-pradesh') {
+        mpGroup.appendChild(opt);
+      } else {
+        inGroup.appendChild(opt);
+      }
+    });
+    $('citySelect').value = cityRates[state.city] ? state.city : 'custom';
+  }
+
   // Theme Setup
   const savedTheme = store.get('sfc_theme');
   const isDarkInit = savedTheme ? savedTheme === 'dark' : matchMedia('(prefers-color-scheme: dark)').matches;
@@ -735,44 +687,88 @@
     store.set('sfc_theme', d ? 'dark' : 'light');
   };
 
-  // Fetch Live Rates from Vercel Serverless Backend
-  const fetchLiveRates = async () => {
+  // Live API Fetch from Vercel Serverless Function
+  const fetchLiveRates = async (requestedCity = '') => {
     const badge = $('rateStatus');
-    badge.textContent = '🔄 Syncing...';
+    badge.textContent = '🔄 Live Sync...';
     badge.className = 'sfc-badge fetching';
     try {
-      const res = await fetch(window.LIVE_FUEL_API_URL, { cache: 'no-store' });
-      if (!res.ok) throw new Error('HTTP ' + res.status);
+      const target = requestedCity || (state.city !== 'custom' ? state.city : '');
+      const url = target ? `/api/fuel-rates?city=${encodeURIComponent(target)}` : '/api/fuel-rates';
+      const res = await fetch(url, { cache: 'no-store' });
+      if (!res.ok) throw new Error('API Error');
       const data = await res.json();
+
       if (data && data.rates) {
         cityRates = Object.assign(cityRates, data.rates);
+        populateCityDropdown();
       }
-      badge.textContent = 'Live Cloud 🟢';
+      if (!store.get('sfc_vercel_v5') && data.detectedCity && cityRates[data.detectedCity]) {
+        state.city = data.detectedCity;
+        $('citySelect').value = state.city;
+      }
+
+      badge.textContent = 'Live API 🟢';
       badge.className = 'sfc-badge';
+      if (data.source) {
+        $('footerSource').textContent = `${data.source} • Auto-Deploy CI/CD Active`;
+      }
       applyLiveRate();
       calc();
     } catch (err) {
-      badge.textContent = 'Local DB 🟢';
+      populateCityDropdown();
+      badge.textContent = 'Fallback 🟢';
       badge.className = 'sfc-badge';
       applyLiveRate();
       calc();
     }
   };
 
-  $('refreshRatesBtn').onclick = fetchLiveRates;
+  $('refreshRatesBtn').onclick = () => fetchLiveRates(state.city);
 
-  // Tool Switching
+  // GPS / Browser Location Auto-Detect
+  $('btnAutoLoc').onclick = async () => {
+    const btn = $('btnAutoLoc');
+    btn.textContent = '⏳...';
+    if (!navigator.geolocation) {
+      await fetchLiveRates();
+      btn.textContent = '📍 Detect';
+      return;
+    }
+    navigator.geolocation.getCurrentPosition(
+      async pos => {
+        try {
+          const { latitude, longitude } = pos.coords;
+          const r = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}`);
+          const d = await r.json();
+          const rawCity = (d.address?.city || d.address?.town || d.address?.state_district || '').toLowerCase();
+          const matchedKey = Object.keys(cityRates).find(k => rawCity.includes(k));
+          if (matchedKey) {
+            state.city = matchedKey;
+            $('citySelect').value = matchedKey;
+            await fetchLiveRates(matchedKey);
+          }
+        } catch (_) {}
+        btn.textContent = '📍 Detect';
+      },
+      async () => {
+        await fetchLiveRates();
+        btn.textContent = '📍 Detect';
+      },
+      { timeout: 5000 }
+    );
+  };
+
+  // Switch Calculator Mode
   const setTool = toolName => {
     state.tool = toolName;
     root.querySelectorAll('.sfc-tool').forEach(b => {
-      const on = b.dataset.tool === toolName;
-      b.classList.toggle('on', on);
-      b.setAttribute('aria-selected', on);
+      b.classList.toggle('on', b.dataset.tool === toolName);
     });
     root.querySelectorAll('.sfc-panel').forEach(p => {
       p.classList.toggle('on', p.id === 'p-' + toolName);
     });
-    store.set('sfc_universal_v4', state);
+    store.set('sfc_vercel_v5', state);
     calc();
   };
 
@@ -780,7 +776,6 @@
     b.onclick = () => setTool(b.dataset.tool);
   });
 
-  // Apply City Live Rate
   function applyLiveRate() {
     const city = $('citySelect').value;
     if (city !== 'custom' && cityRates[city]) {
@@ -791,30 +786,23 @@
           (state.vals[state.fuel] ||= {})['p'] = newRate;
         });
       }
-      if (cityRates[city].ethanol) {
-        $('eBlendPrice').value = cityRates[city].ethanol;
-      }
-      if (cityRates[city].petrol) {
-        $('ePurePrice').value = cityRates[city].petrol;
-      }
+      if (cityRates[city].ethanol) $('eBlendPrice').value = cityRates[city].ethanol;
+      if (cityRates[city].petrol) $('ePurePrice').value = cityRates[city].petrol;
     }
-    store.set('sfc_universal_v4', state);
+    store.set('sfc_vercel_v5', state);
   }
 
-  // Apply Fuel & Unit Labels
   function applyFuel() {
     const f = F[state.fuel];
     const u = UNITS[state.unitSys];
     root.style.setProperty('--ac', f.color);
 
     root.querySelectorAll('.sfc-fuel').forEach(b => {
-      const on = b.dataset.fuel === state.fuel;
-      b.classList.toggle('on', on);
-      b.setAttribute('aria-checked', on);
+      b.classList.toggle('on', b.dataset.fuel === state.fuel);
     });
 
     const unitName = (state.fuel === 'petrol' || state.fuel === 'ethanol' || state.fuel === 'diesel') ? u.vol : f.unit;
-    const effName = (state.fuel === 'petrol' || state.fuel === 'ethanol' || state.fuel === 'diesel') ? `${u.dist}/${u.vol}` : `${u.dist}/${f.unit}`;
+    const effName = `${u.dist}/${unitName}`;
     const priceName = `${u.curr}/${unitName}`;
 
     root.querySelectorAll('[data-t="unit"]').forEach(s => s.textContent = unitName);
@@ -846,18 +834,20 @@
   $('unitSystem').value = state.unitSys;
   $('unitSystem').addEventListener('change', e => {
     state.unitSys = e.target.value;
-    store.set('sfc_universal_v4', state);
+    store.set('sfc_vercel_v5', state);
     applyFuel();
   });
 
-  $('citySelect').value = state.city || 'indore';
   $('citySelect').addEventListener('change', e => {
     state.city = e.target.value;
-    applyLiveRate();
-    calc();
+    if (state.city !== 'custom') {
+      fetchLiveRates(state.city);
+    } else {
+      applyLiveRate();
+      calc();
+    }
   });
 
-  // Sync Saved Mileage & Rate Across Tabs
   root.querySelectorAll('[data-save]').forEach(i => {
     i.addEventListener('input', () => {
       const k = i.dataset.save;
@@ -869,11 +859,10 @@
       root.querySelectorAll(`[data-save="${k}"]`).forEach(o => {
         if (o !== i) o.value = i.value;
       });
-      store.set('sfc_universal_v4', state);
+      store.set('sfc_vercel_v5', state);
     });
   });
 
-  // Odometer Trip Meter Helper in Tool 1
   ['cTripStart', 'cTripEnd'].forEach(id => {
     $(id).addEventListener('input', () => {
       const s = num('cTripStart'), e = num('cTripEnd');
@@ -887,8 +876,7 @@
   $('mFuelAmt').addEventListener('input', () => { lastMileageFuelEdit = 'amt'; });
   $('mFuel').addEventListener('input', () => { lastMileageFuelEdit = 'lit'; });
 
-  // ---------- 6 CALCULATOR ENGINES ----------
-
+  // ---------- 6 CALCULATORS ----------
   function calcCost() {
     const f = F[state.fuel], u = UNITS[state.unitSys], out = $('cOut');
     const trip = num('cDist'), dist = trip * ($('cRound').checked ? 2 : 1);
@@ -896,7 +884,7 @@
     const people = Math.max(1, Math.floor(num('cPeople')) || 1);
 
     if (!(dist > 0 && mil > 0)) {
-      out.innerHTML = empty(`Distance (${u.dist}) aur Mileage daalein, nateeja turant dikhega.`);
+      out.innerHTML = empty(`Distance (${u.dist}) aur Mileage daalein.`);
       if (state.tool === 'cost') activeShareText = '';
       return;
     }
@@ -910,15 +898,11 @@
     h += line('Total Kharcha', fmtMoney(total), 'big');
     if (people > 1) h += line(`Per Person (${people} log)`, fmtMoney(total / people));
     h += line(`Kharcha per ${u.dist}`, fmtMoney(total / dist), 'soft');
-    h += line('CO₂ Emission', f.co2 ? `~${qty(co2)} kg` : '0 kg (Zero Emission)', 'soft');
-
-    if (state.fuel === 'ethanol') {
-      h += `<p class="sfc-tip">* Note: E20 fuel mein normal petrol ke muqable mileage 5–7% kam mil sakta hai.</p>`;
-    }
-
+    h += line('CO₂ Emission', f.co2 ? `~${qty(co2)} kg` : '0 kg', 'soft');
     out.innerHTML = h;
+
     if (state.tool === 'cost') {
-      activeShareText = `⛽ *Safar Kharcha (${f.name})*\n📍 Distance: ${qty(dist)} ${u.dist}${$('cRound').checked ? ' (Round Trip)' : ''}\n🛢️ ${f.name}: ${qty(used)} ${f.unit}\n💰 Total Kharcha: ${fmtMoney(total)}` + (people > 1 ? `\n👥 Per Person (${people}): ${fmtMoney(total / people)}` : '');
+      activeShareText = `⛽ *Safar Kharcha (${f.name})*\n🛣️ Distance: ${qty(dist)} ${u.dist}\n🛢️ ${f.name}: ${qty(used)} ${f.unit}\n💰 Total Kharcha: ${fmtMoney(total)}`;
     }
   }
 
@@ -938,25 +922,22 @@
     const dist = od > 0 ? od : num('mDist'), fuel = num('mFuel');
 
     if (!(dist > 0 && fuel > 0)) {
-      out.innerHTML = empty(`Distance (${u.dist}) aur Fuel ₹ (ya ${f.unit}) daalein.`);
+      out.innerHTML = empty(`Distance (${u.dist}) aur ₹ (ya ${f.unit}) daalein.`);
       if (state.tool === 'mileage') activeShareText = '';
       return;
     }
 
     const mil = dist / fuel;
     let h = line('Gaadi ka Asli Mileage', `${qty(mil)} ${u.dist}/${f.unit}`, 'big')
-          + line('Kul Chali Distance', `${qty(dist)} ${u.dist}`, 'soft')
-          + line('Fuel Laga', `${qty(fuel)} ${f.unit}`, 'soft');
-
+          + line('Chali Hui Distance', `${qty(dist)} ${u.dist}`, 'soft');
     if (price > 0) {
       h += line(`1 ${u.dist} ka kharcha`, fmtMoney(price / mil))
-         + line(`100 ${u.dist} ka kharcha`, fmtMoney((price / mil) * 100))
-         + line('Is Trip ka Fuel Kharcha', fmtMoney(fuel * price), 'soft');
+         + line(`100 ${u.dist} ka kharcha`, fmtMoney((price / mil) * 100));
     }
-
     out.innerHTML = h;
+
     if (state.tool === 'mileage') {
-      activeShareText = `🚗 *Mileage Report (${f.name})*\n🛣️ Distance: ${qty(dist)} ${u.dist}\n🛢️ Fuel: ${qty(fuel)} ${f.unit}\n⚡ Asli Mileage: ${qty(mil)} ${u.dist}/${f.unit}` + (price > 0 ? `\n💰 1 ${u.dist} Cost: ${fmtMoney(price / mil)}` : '');
+      activeShareText = `🚗 *Mileage Check (${f.name})*\n🛣️ Distance: ${qty(dist)} ${u.dist}\n⚡ Mileage: ${qty(mil)} ${u.dist}/${f.unit}`;
     }
   }
 
@@ -977,12 +958,11 @@
     let h = line('Roz ka Kharcha', fmtMoney(perDay))
           + line('Mahine ka Kharcha', fmtMoney(monthCost), 'big')
           + line(`Mahine mein ${f.name}`, `${qty(usedMonth)} ${f.unit}`)
-          + line('Saal भर ka Kharcha (12 Months)', fmtMoney(monthCost * 12), 'soft')
-          + line(`Mahine ke Kul ${u.dist}`, `${qty(km * days)} ${u.dist}`, 'soft');
-
+          + line('Saal ka Kharcha', fmtMoney(monthCost * 12), 'soft');
     out.innerHTML = h;
+
     if (state.tool === 'month') {
-      activeShareText = `📅 *Monthly Fuel Budget (${f.name})*\n🛣️ Monthly Run: ${qty(km * days)} ${u.dist} (${days} days)\n🛢️ Fuel Needed: ${qty(usedMonth)} ${f.unit}\n💰 Monthly Cost: ${fmtMoney(monthCost)}`;
+      activeShareText = `📅 *Monthly Budget (${f.name})*\n💰 Monthly Cost: ${fmtMoney(monthCost)}\n🛢️ Fuel: ${qty(usedMonth)} ${f.unit}`;
     }
   }
 
@@ -1002,13 +982,12 @@
       return;
     }
 
-    const range = l => mil > 0 ? line('Itni door chalegi (Range)', `~${qty(l * mil)} ${u.dist}`, 'soft') : '';
+    const range = l => mil > 0 ? line('Estimated Range', `~${qty(l * mil)} ${u.dist}`, 'soft') : '';
     let h = '';
-
     if (amt > 0) {
       const l = amt / rate;
       h += `<div class="sfc-sub">${u.curr} se ${f.unit}</div>`
-         + line(`${fmtMoney(amt)} mein ${f.name} aayega`, `${qty(l)} ${f.unit}`, 'big') + range(l);
+         + line(`${fmtMoney(amt)} mein ${f.name}`, `${qty(l)} ${f.unit}`, 'big') + range(l);
     }
     if (lit > 0) {
       h += `<div class="sfc-sub">${f.unit} se ${u.curr}</div>`
@@ -1017,17 +996,13 @@
     if (cap > 0) {
       const need = cap * (1 - lvl / 100);
       h += `<div class="sfc-sub">Tank Full Hisaab</div>`
-         + line(`Abhi Tank mein hai (${lvl}%)`, `${qty((cap * lvl) / 100)} ${f.unit}`, 'soft')
          + line('Aur Dalwana Padega', `${qty(need)} ${f.unit}`)
-         + line('Full Tank Kharcha', fmtMoney(need * rate), 'big')
-         + (mil > 0 ? line('Full Tank Range', `~${qty(cap * mil)} ${u.dist}`, 'soft') : '');
+         + line('Full Tank Kharcha', fmtMoney(need * rate), 'big');
     }
-
     out.innerHTML = h;
+
     if (state.tool === 'litre') {
-      activeShareText = `🛢️ *Fuel Quantity Hisaab (${f.name} @ ${fmtMoney(rate)}/${f.unit})*`;
-      if (amt > 0) activeShareText += `\n💵 ${fmtMoney(amt)} = ${qty(amt / rate)} ${f.unit}`;
-      if (lit > 0) activeShareText += `\n🛢️ ${qty(lit)} ${f.unit} = ${fmtMoney(lit * rate)}`;
+      activeShareText = `🛢️ *Fuel Quantity (${f.name})*\nRate: ${fmtMoney(rate)}/${f.unit}`;
     }
   }
 
@@ -1043,34 +1018,27 @@
       return;
     }
 
-    const genFuel = hours * burn;
-    const genCost = genFuel * price;
-    const vehFuel = (dist > 0 && mil > 0) ? (dist / mil) : 0;
-    const vehCost = vehFuel * price;
-    const totalFuel = genFuel + vehFuel;
-    const totalCost = genCost + vehCost + extra;
+    const genFuel = hours * burn, genCost = genFuel * price;
+    const vehFuel = (dist > 0 && mil > 0) ? (dist / mil) : 0, vehCost = vehFuel * price;
+    const totalFuel = genFuel + vehFuel, totalCost = genCost + vehCost + extra;
 
     let h = '';
     if (hours > 0) {
       h += `<div class="sfc-sub">🔊 DJ Generator (${hours} Hrs)</div>`
-         + line('Generator Fuel Lagega', `${qty(genFuel)} ${f.unit}`)
-         + line('Generator Fuel Kharcha', fmtMoney(genCost));
+         + line('Generator Fuel', `${qty(genFuel)} ${f.unit} (${fmtMoney(genCost)})`);
     }
     if (dist > 0 && mil > 0) {
-      h += `<div class="sfc-sub">🚚 DJ Pickup / Gaadi (${dist} ${u.dist})</div>`
-         + line('Gaadi Fuel Lagega', `${qty(vehFuel)} ${f.unit}`)
-         + line('Gaadi Fuel Kharcha', fmtMoney(vehCost));
+      h += `<div class="sfc-sub">🚚 DJ Pickup (${dist} ${u.dist})</div>`
+         + line('Pickup Fuel', `${qty(vehFuel)} ${f.unit} (${fmtMoney(vehCost)})`);
     }
-    if (extra > 0) {
-      h += line('Operator / Labour Kharcha', fmtMoney(extra));
-    }
-    h += `<div class="sfc-sub">📊 Kul DJ Event Summary</div>`
-       + line(`Total ${f.name} Use Hoga`, `${qty(totalFuel)} ${f.unit}`)
-       + line('Total DJ Kharcha', fmtMoney(totalCost), 'big');
-
+    if (extra > 0) h += line('Operator / Extra', fmtMoney(extra));
+    h += `<div class="sfc-sub">📊 Kul DJ Event Kharcha</div>`
+       + line(`Total ${f.name}`, `${qty(totalFuel)} ${f.unit}`)
+       + line('Grand Total', fmtMoney(totalCost), 'big');
     out.innerHTML = h;
+
     if (state.tool === 'dj') {
-      activeShareText = `🔊 *DJ & Generator Fuel Hisaab (${f.name})*\n⏱️ Generator: ${hours} Hrs (${qty(genFuel)} ${f.unit} = ${fmtMoney(genCost)})\n🚚 DJ Pickup: ${dist} ${u.dist} (${qty(vehFuel)} ${f.unit} = ${fmtMoney(vehCost)})\n🛢️ Total Fuel: ${qty(totalFuel)} ${f.unit}\n💰 Total Kharcha: ${fmtMoney(totalCost)}`;
+      activeShareText = `🔊 *DJ Event Fuel Hisaab (${f.name})*\n🛢️ Total Fuel: ${qty(totalFuel)} ${f.unit}\n💰 Total Cost: ${fmtMoney(totalCost)}`;
     }
   }
 
@@ -1081,35 +1049,30 @@
     const baseMil = num('eBaseMil'), dist = num('eTripDist') || 100;
 
     if (!(purePrice > 0 && blendPrice > 0 && baseMil > 0)) {
-      out.innerHTML = empty('Pure Petrol Rate, Ethanol Mix Rate aur Mileage daalein.');
+      out.innerHTML = empty('Pure Petrol Rate, Ethanol Rate aur Mileage daalein.');
       if (state.tool === 'ethanol') activeShareText = '';
       return;
     }
 
-    // Ethanol contains ~33% less energy per litre than pure gasoline
     const dropFraction = (blendPct / 100) * 0.33;
     const blendMil = baseMil * (1 - dropFraction);
-
-    const pureCostPerKm = purePrice / baseMil;
-    const blendCostPerKm = blendPrice / blendMil;
-
-    const tripPureCost = pureCostPerKm * dist;
-    const tripBlendCost = blendCostPerKm * dist;
+    const tripPureCost = (purePrice / baseMil) * dist;
+    const tripBlendCost = (blendPrice / blendMil) * dist;
     const diff = tripPureCost - tripBlendCost;
 
     const verdict = diff > 0
-      ? `✅ E${blendPct} se ${dist} ${u.dist} par ${fmtMoney(diff)} ki bachat hogi!`
-      : `⚠️ E${blendPct} sasta dikhta hai, par mileage girne se ${dist} ${u.dist} par ${fmtMoney(Math.abs(diff))} mehenga padega!`;
+      ? `✅ E${blendPct} se ${fmtMoney(diff)} ki bachat!`
+      : `⚠️ E${blendPct} se ${fmtMoney(Math.abs(diff))} extra lagenge!`;
 
-    let h = line(`Pure Petrol Mileage`, `${qty(baseMil)} ${u.dist}/L`)
-          + line(`E${blendPct} Real Mileage (-${qty(dropFraction * 100)}%)`, `${qty(blendMil)} ${u.dist}/L`)
+    let h = line('Pure Petrol Mileage', `${qty(baseMil)} ${u.dist}/L`)
+          + line(`E${blendPct} Real Mileage`, `${qty(blendMil)} ${u.dist}/L`)
           + line(`Pure Petrol (${dist} ${u.dist})`, fmtMoney(tripPureCost))
           + line(`E${blendPct} Mix (${dist} ${u.dist})`, fmtMoney(tripBlendCost))
-          + line('Asli Faisla (Verdict)', verdict, 'big');
-
+          + line('Result', verdict, 'big');
     out.innerHTML = h;
+
     if (state.tool === 'ethanol') {
-      activeShareText = `🧪 *E${blendPct} Ethanol vs Pure Petrol (${dist} ${u.dist})*\n⛽ Pure Petrol: ${qty(baseMil)} KM/L (${fmtMoney(tripPureCost)})\n🌱 E${blendPct} Mix: ${qty(blendMil)} KM/L (${fmtMoney(tripBlendCost)})\n📊 Verdict: ${verdict}`;
+      activeShareText = `🧪 *E${blendPct} Analysis (${dist} ${u.dist})*\n${verdict}`;
     }
   }
 
@@ -1127,7 +1090,7 @@
     el.addEventListener('change', calc);
   });
 
-  // ---------- Share, Copy, Logbook & Reset ----------
+  // Action Buttons
   const flash = (btn, text) => {
     const orig = btn.textContent;
     btn.textContent = text;
@@ -1135,42 +1098,31 @@
   };
 
   $('btnWA').onclick = () => {
-    if (!activeShareText) return flash($('btnWA'), '⚠️ Details daalein');
+    if (!activeShareText) return flash($('btnWA'), '⚠️ Enter Data');
     window.open('https://wa.me/?text=' + encodeURIComponent(activeShareText), '_blank', 'noopener');
   };
 
   $('btnCopy').onclick = async () => {
-    if (!activeShareText) return flash($('btnCopy'), '⚠️ Details daalein');
+    if (!activeShareText) return flash($('btnCopy'), '⚠️ Enter Data');
     try {
       await navigator.clipboard.writeText(activeShareText);
       flash($('btnCopy'), 'Copied ✓');
-    } catch (e) {
-      const t = document.createElement('textarea');
-      t.value = activeShareText;
-      document.body.appendChild(t);
-      t.select();
-      document.execCommand('copy');
-      t.remove();
-      flash($('btnCopy'), 'Copied ✓');
-    }
+    } catch (_) {}
   };
 
   function renderLogs() {
     const box = $('logbookBox'), list = $('logList'), count = $('logCount');
     const logs = state.logs || [];
-    if (!logs.length) {
-      box.style.display = 'none';
-      return;
-    }
+    if (!logs.length) { box.style.display = 'none'; return; }
     box.style.display = 'block';
     count.textContent = logs.length;
     list.innerHTML = logs.map(item =>
-      `<div class="sfc-log-item"><span><strong>[${item.mode}]</strong> ${item.summary}</span><span style="color:var(--mut)">${item.time}</span></div>`
+      `<div class="sfc-log-item"><span><strong>[${item.mode}]</strong> ${item.summary}</span><span>${item.time}</span></div>`
     ).join('');
   }
 
   $('btnSaveLog').onclick = () => {
-    if (!activeShareText) return flash($('btnSaveLog'), '⚠️ Details daalein');
+    if (!activeShareText) return flash($('btnSaveLog'), '⚠️ Enter Data');
     const cleanSummary = activeShareText.replace(/\*/g, '').split('\n').slice(1).join(' | ');
     state.logs = state.logs || [];
     state.logs.unshift({
@@ -1180,7 +1132,7 @@
       time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
     });
     if (state.logs.length > 15) state.logs.pop();
-    store.set('sfc_universal_v4', state);
+    store.set('sfc_vercel_v5', state);
     renderLogs();
     flash($('btnSaveLog'), 'Saved ✓');
   };
@@ -1188,22 +1140,18 @@
   $('btnExportCsv').onclick = () => {
     const logs = state.logs || [];
     if (!logs.length) return;
-    const csvRows = ['Mode,Fuel,Details,Time'];
-    logs.forEach(l => {
-      csvRows.push(`"${l.mode}","${l.fuel}","${l.summary.replace(/"/g, '""')}","${l.time}"`);
-    });
-    const blob = new Blob([csvRows.join('\n')], { type: 'text/csv;charset=utf-8;' });
-    const url = URL.createObjectURL(blob);
+    const rows = ['Mode,Fuel,Summary,Time'];
+    logs.forEach(l => rows.push(`"${l.mode}","${l.fuel}","${l.summary}","${l.time}"`));
+    const blob = new Blob([rows.join('\n')], { type: 'text/csv;charset=utf-8;' });
     const a = document.createElement('a');
-    a.href = url;
-    a.download = 'fuel-calculator-history.csv';
+    a.href = URL.createObjectURL(blob);
+    a.download = 'fuel-history.csv';
     a.click();
-    URL.revokeObjectURL(url);
   };
 
   $('btnClearLog').onclick = () => {
     state.logs = [];
-    store.set('sfc_universal_v4', state);
+    store.set('sfc_vercel_v5', state);
     renderLogs();
   };
 
@@ -1223,7 +1171,7 @@
     flash($('btnReset'), 'Cleared ✓');
   };
 
-  // Initialize App
+  populateCityDropdown();
   setTool(state.tool || 'cost');
   applyFuel();
   renderLogs();
