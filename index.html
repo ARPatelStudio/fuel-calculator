@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Smart Auto Calculator</title>
+  <script>
+    // Vercel Serverless API Route
+    window.LIVE_FUEL_API_URL = "/api/fuel-rates";
+  </script>
+</head>
+<body>
+
+<div id="sfc" class="sfc">
+  <div class="sfc-head">
+    <div class="sfc-top">
+      <h2>⛽ Smart Auto Calculator</h2>
+      <button type="button" id="sfc-theme" class="sfc-icon" aria-label="Dark / Light mode badlein">🌙</button>
+    </div>
+    <p>Safar ka kharcha, asli mileage aur tel ka hisaab sab ek jagah.</p>
+  </div>
+
+  <div class="sfc-tools" role="tablist" aria-label="Tools">
+    <button type="button" role="tab" class="sfc-tool on" data-tool="cost" aria-selected="true">💰 Safar</button>
+    <button type="button" role="tab" class="sfc-tool" data-tool="mileage" aria-selected="false">🚗 Mileage</button>
+    <button type="button" role="tab" class="sfc-tool" data-tool="month" aria-selected="false">📅 Mahina</button>
+    <button type="button" role="tab" class="sfc-tool" data-tool="litre" aria-selected="false">🛢️ Litre</button>
+  </div>
+
+  <div class="sfc-fuels" role="radiogroup" aria-label="Fuel type">
+    <button type="button" role="radio" class="sfc-fuel on" data-fuel="petrol" aria-checked="true">Petrol</button>
+    <button type="button" role="radio" class="sfc-fuel" data-fuel="ethanol" aria-checked="false">E20 Petrol</button>
+    <button type="button" role="radio" class="sfc-fuel" data-fuel="diesel" aria-checked="false">Diesel</button>
+    <button type="button" role="radio" class="sfc-fuel" data-fuel="cng" aria-checked="false">CNG</button>
+    <button type="button" role="radio" class="sfc-fuel" data-fuel="ev" aria-checked="false">EV</button>
+  </div>
+
+  <!-- CITY SELECTOR (LIVE CLOUD) -->
+  <div class="sfc-location">
+    <label for="citySelect">📍 City (Live Cloud):</label>
+    <select id="citySelect" class="sfc-select">
+      <option value="custom">Custom (Rate khud likhein)</option>
+      <option value="indore">Indore, MP</option>
+      <option value="delhi">New Delhi</option>
+      <option value="mumbai">Mumbai</option>
+      <option value="bengaluru">Bengaluru</option>
+      <option value="chennai">Chennai</option>
+      <option value="kolkata">Kolkata</option>
+    </select>
+    <span id="rateStatus" class="sfc-badge fetching">🔄 Connecting...</span>
+  </div>
+
+  <!-- TOOL 1: SAFAR KHARCHA -->
+  <section class="sfc-panel on" id="p-cost">
+    <details class="sfc-trip-details">
+      <summary>🛣️ Trip Meter / Odometer se Distance nikalein?</summary>
+      <div class="sfc-row" style="margin-top: 8px;">
+        <div class="sfc-field"><label for="cTripStart">Start Reading (KM)</label>
+          <input id="cTripStart" type="number" inputmode="decimal" min="0" step="any" placeholder="Shuru"></div>
+        <div class="sfc-field"><label for="cTripEnd">End Reading (KM)</label>
+          <input id="cTripEnd" type="number" inputmode="decimal" min="0" step="any" placeholder="Khatam"></div>
+      </div>
+    </details>
+
+    <div class="sfc-field"><label for="cDist">Total Distance (KM)</label>
+      <input id="cDist" type="number" inputmode="decimal" min="0" step="any" data-ph="d"></div>
+    <label class="sfc-check"><input type="checkbox" id="cRound"> Aana-jaana (round trip) — distance double karein</label>
+    
+    <div class="sfc-row">
+      <div class="sfc-field"><label for="cMil">Mileage (<span data-t="eff"></span>)</label>
+        <input id="cMil" type="number" inputmode="decimal" min="0" step="any" data-ph="m" data-save="m"></div>
+      <div class="sfc-field"><label for="cPrice">Rate (<span data-t="price"></span>)</label>
+        <input id="cPrice" type="number" inputmode="decimal" min="0" step="any" data-ph="p" data-save="p"></div>
+    </div>
+    <div class="sfc-row">
+      <div class="sfc-field"><label for="cPeople">Kitne log?</label>
+        <input id="cPeople" type="number" inputmode="numeric" min="1" step="1" value="1"></div>
+      <div class="sfc-field"><label for="cExtra">Toll / Parking (₹)</label>
+        <input id="cExtra" type="number" inputmode="decimal" min="0" step="any" placeholder="0"></div>
+    </div>
+    
+    <div class="sfc-result" id="cOut" aria-live="polite"></div>
+  </section>
+
+  <!-- TOOL 2: MILEAGE CHECK -->
+  <section class="sfc-panel" id="p-mileage">
+    <div class="sfc-row">
+      <div class="sfc-field"><label for="mStart">Odometer shuru (KM)</label>
+        <input id="mStart" type="number" inputmode="decimal" min="0" step="any" placeholder="Optional"></div>
+      <div class="sfc-field"><label for="mEnd">Odometer ab (KM)</label>
+        <input id="mEnd" type="number" inputmode="decimal" min="0" step="any" placeholder="Optional"></div>
+    </div>
+    <div class="sfc-field"><label for="mDist">Ya seedha chali hui distance (KM)</label>
+      <input id="mDist" type="number" inputmode="decimal" min="0" step="any" placeholder="Example: 200"></div>
+    
+    <div class="sfc-field"><label for="mPrice">Rate (<span data-t="price"></span>)</label>
+        <input id="mPrice" type="number" inputmode="decimal" min="0" step="any" data-ph="p" data-save="p"></div>
+    
+    <div class="sfc-row">
+      <div class="sfc-field"><label for="mFuelAmt">Kitne ₹ ka tel daala?</label>
+        <input id="mFuelAmt" type="number" inputmode="decimal" min="0" step="any" placeholder="Eg: 500"></div>
+      <div class="sfc-field"><label for="mFuel">Auto-Litre (<span data-t="unit"></span>)</label>
+        <input id="mFuel" type="number" inputmode="decimal" min="0" step="any" placeholder="Litre"></div>
+    </div>
+
+    <div class="sfc-result" id="mOut" aria-live="polite"></div>
+  </section>
+
+  <!-- TOOL 3: MAHINE KA BUDGET -->
+  <section class="sfc-panel" id="p-month">
+    <div class="sfc-row">
+      <div class="sfc-field"><label for="dKm">Roz ke KM</label>
+        <input id="dKm" type="number" inputmode="decimal" min="0" step="any" placeholder="Example: 30"></div>
+      <div class="sfc-field"><label for="dDays">Mahine mein kitne din?</label>
+        <input id="dDays" type="number" inputmode="numeric" min="1" max="31" value="26"></div>
+    </div>
+    <div class="sfc-row">
+      <div class="sfc-field"><label for="dMil">Mileage (<span data-t="eff"></span>)</label>
+        <input id="dMil" type="number" inputmode="decimal" min="0" step="any" data-ph="m" data-save="m"></div>
+      <div class="sfc-field"><label for="dPrice">Rate (<span data-t="price"></span>)</label>
+        <input id="dPrice" type="number" inputmode="decimal" min="0" step="any" data-ph="p" data-save="p"></div>
+    </div>
+    <div class="sfc-result" id="dOut" aria-live="polite"></div>
+  </section>
+
+  <!-- TOOL 4: LITRE CALCULATOR -->
+  <section class="sfc-panel" id="p-litre">
+    <div class="sfc-row">
+      <div class="sfc-field"><label for="lPrice">Rate (<span data-t="price"></span>)</label>
+        <input id="lPrice" type="number" inputmode="decimal" min="0" step="any" data-ph="p" data-save="p"></div>
+      <div class="sfc-field"><label for="lMil">Mileage (<span data-t="eff"></span>) — optional</label>
+        <input id="lMil" type="number" inputmode="decimal" min="0" step="any" data-ph="m" data-save="m"></div>
+    </div>
+    <div class="sfc-row">
+      <div class="sfc-field"><label for="lAmt">Kitne ₹ ka fuel daalna hai?</label>
+        <input id="lAmt" type="number" inputmode="decimal" min="0" step="any" placeholder="Example: 500"></div>
+      <div class="sfc-field"><label for="lLit">Ya kitne <span data-t="unit"></span> chahiye?</label>
+        <input id="lLit" type="number" inputmode="decimal" min="0" step="any" placeholder="Example: 5"></div>
+    </div>
+    <div class="sfc-row">
+      <div class="sfc-field"><label for="lCap">Tank capacity (<span data-t="unit"></span>)</label>
+        <input id="lCap" type="number" inputmode="decimal" min="0" step="any" placeholder="Example: 40"></div>
+      <div class="sfc-field"><label for="lLvl">Abhi tank kitna bhara hai (%)</label>
+        <input id="lLvl" type="number" inputmode="decimal" min="0" max="100" step="any" placeholder="Example: 25"></div>
+    </div>
+    <div class="sfc-result" id="lOut" aria-live="polite"></div>
+  </section>
+</div>
+
+<style>
+  body { margin: 0; background: #f1f5f9; }
+  .sfc{
+    --bg:#fff; --panel:#f6f7f9; --tx:#17202b; --mut:#5b6675; --bd:#e1e5eb; --inp:#fff; --ac:#ef4444;
+    max-width:460px; margin:20px auto; background:var(--bg); color:var(--tx);
+    border:1px solid var(--bd); border-radius:16px; overflow:hidden;
+    font-family:system-ui,-apple-system,sans-serif; line-height:1.4;
+    box-shadow:0 8px 28px rgba(0,0,0,.08); transition:background .25s,color .25s;
+  }
+  .sfc.dark{ --bg:#0f1722; --panel:#18222f; --tx:#eef2f7; --mut:#9aa7b8; --bd:#2b3848; --inp:#0f1722; }
+  .sfc *{ box-sizing:border-box; }
+  .sfc button,.sfc input, .sfc select{ font:inherit; }
+  .sfc button:focus-visible,.sfc input:focus-visible, .sfc select:focus-visible{ outline:2px solid var(--ac); outline-offset:2px; }
+  .sfc-head{ padding:18px 20px 14px; background:var(--panel); border-bottom:1px solid var(--bd); }
+  .sfc-top{ display:flex; justify-content:space-between; align-items:center; gap:10px; }
+  .sfc-head h2{ margin:0; font-size:1.3rem; font-weight:700; color:var(--tx); }
+  .sfc-head p{ margin:6px 0 0; font-size:.88rem; color:var(--mut); }
+  .sfc-icon{ background:none; border:0; font-size:1.2rem; cursor:pointer; padding:6px; border-radius:50%; }
+  .sfc-tools{ display:flex; gap:4px; background:var(--panel); padding:4px; margin:14px 16px 10px; border-radius:10px; }
+  .sfc-tool{ flex:1; padding:9px 4px; border:0; background:transparent; color:var(--mut); font-weight:600; font-size:.9rem; border-radius:8px; cursor:pointer; }
+  .sfc-tool.on{ background:var(--bg); color:var(--tx); box-shadow:0 1px 3px rgba(0,0,0,.15); }
+  .sfc-fuels{ display:flex; gap:6px; padding:0 16px 6px; flex-wrap:wrap; }
+  .sfc-fuel{ padding:6px 12px; border-radius:999px; border:1px solid var(--bd); background:transparent; color:var(--mut); font-weight:600; font-size:.85rem; cursor:pointer; transition: all 0.2s ease;}
+  .sfc-fuel.on{ background:var(--ac); border-color:var(--ac); color:#fff; }
+  .sfc-location { display:flex; align-items:center; gap:10px; padding:8px 16px 14px; border-bottom:1px dashed var(--bd); margin-bottom: 10px;}
+  .sfc-location label { font-size: .85rem; font-weight: 600; color: var(--mut); }
+  .sfc-select { flex: 1; padding: 6px 10px; border: 1px solid var(--bd); border-radius: 8px; background: var(--inp); color: var(--tx); font-size: .9rem; cursor: pointer; }
+  .sfc-select:focus { border-color: var(--ac); }
+  .sfc-badge { font-size: 0.75rem; font-weight: 700; color: #fff; background: #10b981; padding: 4px 8px; border-radius: 20px; display: inline-block;}
+  .sfc-badge.fetching { background: #f59e0b; }
+  .sfc-badge.error { background: #ef4444; }
+  .sfc-panel{ display:none; padding:12px 20px 20px; }
+  .sfc-panel.on{ display:block; animation:sfcIn .25s ease; }
+  @keyframes sfcIn{ from{opacity:0;transform:translateY(4px)} to{opacity:1;transform:none} }
+  .sfc-trip-details { margin-bottom: 14px; background: color-mix(in srgb, var(--bd) 30%, transparent); padding: 10px 14px; border-radius: 10px; border: 1px solid var(--bd); }
+  .sfc-trip-details summary { font-size: 0.85rem; font-weight: 600; color: var(--ac); cursor: pointer; list-style: none; outline: none;}
+  .sfc-trip-details summary::-webkit-details-marker { display: none; }
+  .sfc-row{ display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+  .sfc-field{ margin-bottom:14px; }
+  .sfc-field label{ display:block; font-size:.82rem; font-weight:600; margin-bottom:5px; color:var(--tx); }
+  .sfc-field input{ width:100%; padding:11px 12px; border:1px solid var(--bd); border-radius:8px; background:var(--inp); color:var(--tx); font-size:1rem; }
+  .sfc-field input:focus{ border-color:var(--ac); }
+  .sfc-check{ display:flex; gap:8px; align-items:center; font-size:.85rem; color:var(--mut); margin:-4px 0 14px; cursor:pointer; }
+  .sfc-result{ margin-top:6px; padding:12px 16px; border-radius:12px; border:1px solid color-mix(in srgb,var(--ac) 35%,transparent); background:color-mix(in srgb,var(--ac) 9%,transparent); }
+  .sfc-line{ display:flex; justify-content:space-between; align-items:baseline; gap:10px; padding:6px 0; font-size:.93rem; }
+  .sfc-line strong{ font-variant-numeric:tabular-nums; text-align:right; }
+  .sfc-line.big{ font-size:1.15rem; border-top:1px solid var(--bd); margin-top:6px; padding-top:10px; }
+  .sfc-line.big strong{ color:var(--ac); font-size:1.3rem; }
+  .sfc-line.soft{ color:var(--mut); font-size:.85rem; }
+</style>
+
+<script>
+(() => {
+  const $ = id => document.getElementById(id);
+  const root = $('sfc');
+  const store = {
+    get(k){ try { return JSON.parse(localStorage.getItem(k)); } catch(e){ return null; } },
+    set(k,v){ try { localStorage.setItem(k, JSON.stringify(v)); } catch(e){} }
+  };
+
+  const F = {
+    petrol: { name:'Petrol',     unit:'Litre', eff:'KM/L',   price:'₹/Litre', ph:{d:150,m:45,p:106}, co2:2.31, color:'#ef4444' },
+    ethanol:{ name:'E20 Petrol', unit:'Litre', eff:'KM/L',   price:'₹/Litre', ph:{d:150,m:42,p:103}, co2:1.85, color:'#10b981' }, 
+    diesel: { name:'Diesel',     unit:'Litre', eff:'KM/L',   price:'₹/Litre', ph:{d:300,m:18,p:92},  co2:2.68, color:'#d19a06' },
+    cng:    { name:'CNG',        unit:'kg',    eff:'KM/kg',  price:'₹/kg',    ph:{d:200,m:25,p:89},  co2:2.75, color:'#16a34a' },
+    ev:     { name:'EV',         unit:'kWh',   eff:'KM/kWh', price:'₹/kWh',   ph:{d:200,m:7,p:8},    co2:0,    color:'#7c3aed' }
+  };
+
+  // 🔥 VERCEL SERVERLESS FETCH 🔥
+  let cityRates = {}; 
+  const fetchLiveRates = async () => {
+    const badge = $('rateStatus');
+    try {
+      const response = await fetch(window.LIVE_FUEL_API_URL);
+      cityRates = await response.json();
+      badge.textContent = 'Live API 🟢';
+      badge.className = 'sfc-badge';
+      applyLiveRate(); 
+      calc();
+    } catch (error) {
+      badge.textContent = 'Offline ⚠️';
+      badge.className = 'sfc-badge error';
+    }
+  };
+
+  const num = id => Math.max(0, parseFloat($(id).value) || 0);
+  const inr = v => '₹' + v.toLocaleString('en-IN', {minimumFractionDigits:2, maximumFractionDigits:2});
+  const qty = v => v.toLocaleString('en-IN', {maximumFractionDigits:2});
+  const line = (l, v, c='') => `<div class="sfc-line ${c}"><span>${l}</span><strong>${v}</strong></div>`;
+  const empty = t => `<p style="margin:0; padding:6px 0; color:var(--mut); font-size:.9rem;">${t}</p>`;
+
+  const state = Object.assign({ fuel:'petrol', city:'custom', vals:{} }, store.get('sfc_state') || {});
+  if (!F[state.fuel]) state.fuel = 'petrol';
+  if($('citySelect')) $('citySelect').value = state.city || 'custom';
+  
+  let lastMileageFuelEdit = 'amt';
+  const setTheme = d => { root.classList.toggle('dark', d); $('sfc-theme').textContent = d ? '☀️' : '🌙'; };
+  setTheme(store.get('sfc_theme') === 'dark' || matchMedia('(prefers-color-scheme: dark)').matches);
+  $('sfc-theme').onclick = () => { const d = !root.classList.contains('dark'); setTheme(d); store.set('sfc_theme', d ? 'dark' : 'light'); };
+
+  root.querySelectorAll('.sfc-tool').forEach(b => b.onclick = () => {
+    root.querySelectorAll('.sfc-tool').forEach(x => { x.classList.toggle('on', x === b); x.setAttribute('aria-selected', x === b); });
+    root.querySelectorAll('.sfc-panel').forEach(p => p.classList.toggle('on', p.id === 'p-' + b.dataset.tool));
+  });
+
+  function applyLiveRate() {
+    const city = $('citySelect').value;
+    if(city !== 'custom' && Object.keys(cityRates).length > 0 && cityRates[city]) {
+       const newRate = cityRates[city][state.fuel];
+       root.querySelectorAll('[data-save="p"]').forEach(i => {
+           i.value = newRate; (state.vals[state.fuel] ||= {})['p'] = newRate;
+       });
+    }
+    store.set('sfc_state', state);
+  }
+
+  function applyFuel(){
+    const f = F[state.fuel];
+    root.style.setProperty('--ac', f.color);
+    root.querySelectorAll('.sfc-fuel').forEach(b => {
+      const on = b.dataset.fuel === state.fuel; b.classList.toggle('on', on); b.setAttribute('aria-checked', on);
+    });
+    root.querySelectorAll('[data-t]').forEach(s => s.textContent = f[s.dataset.t]);
+    root.querySelectorAll('[data-ph]').forEach(i => i.placeholder = 'Example: ' + f.ph[i.dataset.ph]);
+    applyLiveRate(); 
+    const v = state.vals[state.fuel] || {};
+    root.querySelectorAll('[data-save]').forEach(i => i.value = v[i.dataset.save] ?? '');
+    calc();
+  }
+
+  root.querySelectorAll('.sfc-fuel').forEach(b => b.onclick = () => { state.fuel = b.dataset.fuel; applyFuel(); });
+  $('citySelect').addEventListener('change', (e) => { state.city = e.target.value; applyLiveRate(); calc(); });
+  
+  root.querySelectorAll('[data-save]').forEach(i => i.addEventListener('input', () => {
+    const k = i.dataset.save; (state.vals[state.fuel] ||= {})[k] = i.value;
+    if (k === 'p' && $('citySelect').value !== 'custom') {
+        $('citySelect').value = 'custom'; state.city = 'custom';
+    }
+    root.querySelectorAll(`[data-save="${k}"]`).forEach(o => { if (o !== i) o.value = i.value; });
+    store.set('sfc_state', state);
+  }));
+
+  ['cTripStart', 'cTripEnd'].forEach(id => {
+    $(id).addEventListener('input', () => {
+      const s = num('cTripStart'), e = num('cTripEnd');
+      if (e > s) { $('cDist').value = parseFloat((e - s).toFixed(2)); calc(); }
+    });
+  });
+
+  $('mFuelAmt').addEventListener('input', () => { lastMileageFuelEdit = 'amt'; });
+  $('mFuel').addEventListener('input', () => { lastMileageFuelEdit = 'lit'; });
+
+  function calcCost(){
+    const f = F[state.fuel], out = $('cOut');
+    const trip = num('cDist'), dist = trip * ($('cRound').checked ? 2 : 1);
+    const mil = num('cMil'), price = num('cPrice'), extra = num('cExtra');
+    const people = Math.max(1, Math.floor(num('cPeople')) || 1);
+    if (!(dist > 0 && mil > 0)) { out.innerHTML = empty('Distance aur mileage daalein.'); return; }
+    const used = dist / mil, fuelCost = used * price, total = fuelCost + extra;
+    let h = line(`${f.name} use hoga`, `${qty(used)} ${f.unit}`) + line('Fuel ka kharcha', inr(fuelCost));
+    if (extra > 0) h += line('Toll / Parking', inr(extra));
+    h += line('Total kharcha', inr(total), 'big');
+    if (people > 1) h += line(`Per person (${people} log)`, inr(total / people));
+    h += line('Kharcha per KM', inr(total / dist), 'soft');
+    out.innerHTML = h;
+  }
+
+  function calcMileage(){
+    const f = F[state.fuel], out = $('mOut');
+    const price = num('mPrice');
+    if (price > 0) {
+      if (lastMileageFuelEdit === 'amt' && $('mFuelAmt').value !== '') $('mFuel').value = (num('mFuelAmt') / price).toFixed(2);
+      else if (lastMileageFuelEdit === 'lit' && $('mFuel').value !== '') $('mFuelAmt').value = (num('mFuel') * price).toFixed(2);
+    }
+    const od = num('mEnd') - num('mStart');
+    const dist = od > 0 ? od : num('mDist'), fuel = num('mFuel');
+    if (!(dist > 0 && fuel > 0)) { out.innerHTML = empty('Distance aur ₹ (ya litre) daalein.'); return; }
+    const mil = dist / fuel;
+    let h = line('Asli mileage', `${qty(mil)} ${f.eff}`, 'big') + line('Chali hui distance', `${qty(dist)} KM`, 'soft');
+    if (price > 0) h += line('1 KM ka kharcha', inr(price / mil));
+    out.innerHTML = h;
+  }
+
+  function calcMonth(){
+    const f = F[state.fuel], out = $('dOut');
+    const km = num('dKm'), days = Math.min(31, Math.max(1, Math.floor(num('dDays')) || 1));
+    const mil = num('dMil'), price = num('dPrice');
+    if (!(km > 0 && mil > 0)) { out.innerHTML = empty('Roz ke KM aur mileage daalein.'); return; }
+    const perDay = km / mil * price, used = km * days / mil;
+    let h = line('Roz ka kharcha', inr(perDay)) + line('Mahine ka kharcha', inr(perDay * days), 'big')
+          + line(`Mahine mein ${f.name}`, `${qty(used)} ${f.unit}`) + line('Mahine ke KM', `${qty(km * days)} KM`, 'soft');
+    out.innerHTML = h;
+  }
+
+  function calcLitre(){
+    const f = F[state.fuel], out = $('lOut');
+    const rate = num('lPrice'), mil = num('lMil');
+    const amt = num('lAmt'), lit = num('lLit'), cap = num('lCap');
+    const lvl = Math.min(100, num('lLvl'));
+    if (!(rate > 0)) { out.innerHTML = empty(`${f.name} ka rate daalein.`); return; }
+    if (!(amt > 0 || lit > 0 || cap > 0)) { out.innerHTML = empty('₹ amount, litre ya tank capacity daalein.'); return; }
+    const range = l => mil > 0 ? line('Itni door chalegi', `~${qty(l * mil)} KM`, 'soft') : '';
+    let h = '';
+    if (amt > 0) { const l = amt / rate; h += `<div style="margin:10px 0 2px; font-size:.82rem; font-weight:700; color:var(--ac);">₹ se ${f.unit}</div>` + line(`${inr(amt)} mein ${f.name}`, `${qty(l)} ${f.unit}`, 'big') + range(l); }
+    if (lit > 0) { h += `<div style="margin:10px 0 2px; font-size:.82rem; font-weight:700; color:var(--ac);">${f.unit} se ₹</div>` + line(`${qty(lit)} ${f.unit} ka kharcha`, inr(lit * rate), 'big') + range(lit); }
+    if (cap > 0) {
+      const need = cap * (1 - lvl / 100);
+      h += `<div style="margin:10px 0 2px; font-size:.82rem; font-weight:700; color:var(--ac);">Tank full karna hai</div>` + line('Bharna padega', `${qty(need)} ${f.unit}`) + line('Kharcha', inr(need * rate), 'big') + (mil > 0 ? line('Full tank range', `~${qty(cap * mil)} KM`, 'soft') : '');
+    }
+    out.innerHTML = h;
+  }
+
+  function calc(){ calcCost(); calcMileage(); calcMonth(); calcLitre(); }
+  root.querySelectorAll('input').forEach(i => i.addEventListener('input', calc));
+
+  applyFuel();
+  fetchLiveRates();
+})();
+</script>
+</body>
+</html>
